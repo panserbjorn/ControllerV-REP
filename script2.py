@@ -7,6 +7,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import secuenceGenerator as sg
 
+'''
+TODO Debería mejorar el modo de ejecución por parámetros por consola
+TODO Debería agregar un modo más solo para ver las corridas que se encuentran en archivo.txt, porque muchas veces estoy viendo esas para compararlas con las generadas.
+'''
 def mainLoop(mode):
 	nombreArchivo = ""
 	if mode == 'incr':
@@ -18,63 +22,35 @@ def mainLoop(mode):
 	vrep.simxFinish(-1)
 	portNumb = 19997
 	clientID = vrep.simxStart('127.0.0.1', portNumb, True, True, 5000, 5)
-	#clientID = 0
 	if clientID != -1 :
 		print ("se pudo establecer la conexión con la api del simulador")
 		
-
-		#Recover the handles for the motors
-		LUMRetCode, LUM = vrep.simxGetObjectHandle(clientID, "LUM", vrep.simx_opmode_blocking)
-		LLMRetCode, LLM = vrep.simxGetObjectHandle(clientID, "LLM", vrep.simx_opmode_blocking)
-		RUMRetCode, RUM = vrep.simxGetObjectHandle(clientID, "RUM", vrep.simx_opmode_blocking)
-		RLMRetCode, RLM = vrep.simxGetObjectHandle(clientID, "RLM", vrep.simx_opmode_blocking)
-		#print(LUMRetCode, LUM)
-		#print(LLMRetCode, LLM)
-		#TODO Debería chequear acá que todos los motores se recuperaron con el código de retorno
-
-		#Recover the handles for other parts of the robot
-		HeadRetCode, head = vrep.simxGetObjectHandle(clientID, "Head", vrep.simx_opmode_blocking)
+		#Recover handlers for robot parts
+		LUM,LLM,RUM,RLM,head = recoverRobotParts(clientID)
 
 		#Set Initial Target Velocity to 0
 		LUMSpeed = 0
 		LLMSpeed = 0 
 		RUMSpeed = 0 
 		RLMSpeed = 0
-		vrep.simxSetJointTargetVelocity(clientID, LUM, LUMSpeed, vrep.simx_opmode_oneshot)
-		vrep.simxSetJointTargetVelocity(clientID, LLM, LLMSpeed, vrep.simx_opmode_oneshot)
-		vrep.simxSetJointTargetVelocity(clientID, RUM, RUMSpeed, vrep.simx_opmode_oneshot)
-		vrep.simxSetJointTargetVelocity(clientID, RLM, RLMSpeed, vrep.simx_opmode_oneshot)
-
-		
+		setVelocity(clientID,LUM,LUMSpeed)
+		setVelocity(clientID,LLM,LLMSpeed)
+		setVelocity(clientID,RUM,RUMSpeed)
+		setVelocity(clientID,RLM,RLMSpeed)
 
 
 		#Read Instructions from file
-		instructions = []
-		archivo = open(nombreArchivo, "r") 
-		for line in archivo:
-			instructions.append(line)
-		archivo.close()
-		#print(instructions)
-		#Remove ending '\n' from strings
-		for i in range(0,len(instructions)):
-			instructions[i] = instructions[i].replace('\n', '')
-		#print(instructions)
-		#Parse lines of instructions to list of list of tuples with motor and velocity
-		parsedInstructions = []
-		for i in instructions:
-			velocitySeries = []
-			splitbycomma = i.split(',')
-			for j in splitbycomma:
-				splitbydash = j.split('-')
-				velocitySeries.append((int((splitbydash[0])), int(splitbydash[1])))
-			parsedInstructions.append(velocitySeries)
+		instructions = readInstructions(nombreArchivo)
+		
 
 		#Set simulation to be Synchonous instead of Asynchronous
 		vrep.simxSynchronous(clientID, True)
+		
 		#Setting Time Step to 50 ms (miliseconds)
 		dt = 0.05
-		#Time step should NEVER be set to custom because it messes up the simulation behavior!!!!
+		#WARNING!!! - Time step should NEVER be set to custom because it messes up the simulation behavior!!!!
 		#vrep.simxSetFloatingParameter(clientID, vrep.sim_floatparam_simulation_time_step, dt, vrep.simx_opmode_blocking)
+
 		#Start simulation if it didn't start
 		vrep.simxStartSimulation(clientID,vrep.simx_opmode_blocking)
 
@@ -84,84 +60,20 @@ def mainLoop(mode):
 		headSecuenceTrace = []
 		lowerSpeed, upperSpeed = 0, 0
 		secuenceTimes = []
-		for secuence in parsedInstructions:
+		for secuence in instructions:
 			instructionIndex = 0
 			headTrace = []
 			extraPoints = 0
 			for instruction in secuence:
 				instructionIndex+=1
-				#This if statement determines which movement the robot sould perform
-				if (instruction[0] == 1):
-					#Right_contract
-					lowerSpeed = -1
-					upperSpeed = 1
-					vrep.simxSetJointTargetVelocity(clientID, RUM, upperSpeed, vrep.simx_opmode_oneshot)
-					vrep.simxSetJointTargetVelocity(clientID, RLM, lowerSpeed, vrep.simx_opmode_oneshot)
-				elif (instruction[0] == 2):
-					#Right_stretch
-					lowerSpeed = 1
-					upperSpeed = -1
-					vrep.simxSetJointTargetVelocity(clientID, RUM, upperSpeed, vrep.simx_opmode_oneshot)
-					vrep.simxSetJointTargetVelocity(clientID, RLM, lowerSpeed, vrep.simx_opmode_oneshot)
-				elif (instruction[0] == 3):
-					#Right_ahead
-					lowerSpeed = 0
-					upperSpeed = 1
-					vrep.simxSetJointTargetVelocity(clientID, RUM, upperSpeed, vrep.simx_opmode_oneshot)
-					vrep.simxSetJointTargetVelocity(clientID, RLM, lowerSpeed, vrep.simx_opmode_oneshot)
-				elif (instruction[0] == 4):
-					#Right_back
-					lowerSpeed = 0
-					upperSpeed = -1
-					vrep.simxSetJointTargetVelocity(clientID, RUM, upperSpeed, vrep.simx_opmode_oneshot)
-					vrep.simxSetJointTargetVelocity(clientID, RLM, lowerSpeed, vrep.simx_opmode_oneshot)
-				elif (instruction[0] == 5):
-					#Left_contract
-					lowerSpeed = -1
-					upperSpeed = 1
-					vrep.simxSetJointTargetVelocity(clientID, LUM, upperSpeed, vrep.simx_opmode_oneshot)
-					vrep.simxSetJointTargetVelocity(clientID, LLM, lowerSpeed, vrep.simx_opmode_oneshot)
-				elif (instruction[0] == 6):
-					#Left_stretch
-					lowerSpeed = 1
-					upperSpeed = -1
-					vrep.simxSetJointTargetVelocity(clientID, LUM, upperSpeed, vrep.simx_opmode_oneshot)
-					vrep.simxSetJointTargetVelocity(clientID, LLM, lowerSpeed, vrep.simx_opmode_oneshot)
-				elif (instruction[0] == 7):
-					#Left_ahead
-					lowerSpeed = 0
-					upperSpeed = 1
-					vrep.simxSetJointTargetVelocity(clientID, LUM, upperSpeed, vrep.simx_opmode_oneshot)
-					vrep.simxSetJointTargetVelocity(clientID, LLM, lowerSpeed, vrep.simx_opmode_oneshot)
-				elif (instruction[0] == 8):
-					#Left_back
-					lowerSpeed = 0
-					upperSpeed = -1
-					vrep.simxSetJointTargetVelocity(clientID, LUM, upperSpeed, vrep.simx_opmode_oneshot)
-					vrep.simxSetJointTargetVelocity(clientID, LLM, lowerSpeed, vrep.simx_opmode_oneshot)
-				elif (instruction[0] == 9):
-					#Stop_left
-					lowerSpeed = 0
-					upperSpeed = 0
-					vrep.simxSetJointTargetVelocity(clientID, LUM, upperSpeed, vrep.simx_opmode_oneshot)
-					vrep.simxSetJointTargetVelocity(clientID, LLM, lowerSpeed, vrep.simx_opmode_oneshot)
-				elif (instruction[0] == 10):
-					#Stop_right
-					lowerSpeed = 0
-					upperSpeed = 0
-					vrep.simxSetJointTargetVelocity(clientID, RUM, upperSpeed, vrep.simx_opmode_oneshot)
-					vrep.simxSetJointTargetVelocity(clientID, RLM, lowerSpeed, vrep.simx_opmode_oneshot)
+				
+				moveRobot(clientID,instruction[0], LUM, LLM, RUM, RLM)
 				
 				#This is what makes the simulation Synchronous
-				#initialTime = vrep.simxGetLastCmdTime(clientID)
-				#initialTime = 0
 				initialTime = 0.0
-				#initialTime = 0.4567
-				#initialTime = 0.8
-				#initialTime = 200000.3243255
 				actualTime = initialTime + dt
-				#print(initialTime," - ", actualTime," - ", actualTime-initialTime," - ",instruction[1]," - ", instruction[1]/10)
-				#Condition to make a new movement
+				
+				#Condition to stop simulation
 				hasFallen = False
 				vrep.simxSynchronousTrigger(clientID)
 				#Retrive head position
@@ -176,6 +88,7 @@ def mainLoop(mode):
 					#Advance time in my internal counter
 					actualTime = actualTime + dt
 					extraPoints += dt
+					#TODO verificar si es necesario ahora verificar que el índice del movimiento sea mayor que 1. Antes no tenía una posición válida al iniciar la simulación, pero ahora tengo un paso de la simulación antes de llegar acá.
 					if(instructionIndex > 1 and headPosition[0] == 0 and headPosition[1][2]<0.65):
 						hasFallen = True
 						break
@@ -183,18 +96,10 @@ def mainLoop(mode):
 					break
 			print("Secuence: ", secuenceIndex, " has finished")
 			print(secuence)
-			'''
-					TODO 
-					Una vez que pueda pedir las posiciones de la cabeza, puedo determinar
-					cuando el robot se ha caido.
-					Así que puedo pasar a la siguiente secuancia si se cayó.
-					Además puedo guardar las posiciones en una lista y cuando terminó 
-					la secuancia, guardar la secuencia de posiciones en un archivo.
-			'''
+			
 			secuenceTimes.append(extraPoints)
 			#Here I collect the data for the whole secuence
 			headSecuenceTrace.append(list(filter(lambda x: x[0] == 0,headTrace)))
-			#TODO Tal vez necesito truncar todos los valores en los cuales la cabeza se haya caido.
 			runInfo.append((secuenceIndex,max(list(map(lambda x: x[1][0],list(filter(lambda x: x[0] == 0 and x[1][2] > 0.65,headTrace)))))+extraPoints))
 			secuenceIndex+=1
 			#Stop_Start_Simulation
@@ -244,3 +149,101 @@ def mainLoop(mode):
 # 	print("Vuelta número: ",x)
 # 	mainLoop('incr')
 mainLoop('visual')
+
+def recoverRobotParts(clientID):
+	#Recover the handles for the motors
+	LUMRetCode, LUM = vrep.simxGetObjectHandle(clientID, "LUM", vrep.simx_opmode_blocking)
+	LLMRetCode, LLM = vrep.simxGetObjectHandle(clientID, "LLM", vrep.simx_opmode_blocking)
+	RUMRetCode, RUM = vrep.simxGetObjectHandle(clientID, "RUM", vrep.simx_opmode_blocking)
+	RLMRetCode, RLM = vrep.simxGetObjectHandle(clientID, "RLM", vrep.simx_opmode_blocking)
+
+	#Recover the handles for other parts of the robot
+	HeadRetCode, head = vrep.simxGetObjectHandle(clientID, "Head", vrep.simx_opmode_blocking)
+	return (LUM,LLM,RUM,RLM,head)
+
+def setVelocity(clientID, motorHandle, targetVelocity):
+	vrep.simxSetJointTargetVelocity(clientID, motorHandle, targetVelocity, vrep.simx_opmode_oneshot)
+
+def readInstructions(fileName):
+	instructions = []
+	archivo = open(fileName, "r") 
+	for line in archivo:
+		instructions.append(line)
+	archivo.close()
+	#print(instructions)
+	#Remove ending '\n' from strings
+	for i in range(0,len(instructions)):
+		instructions[i] = instructions[i].replace('\n', '')
+	#print(instructions)
+	#Parse lines of instructions to list of list of tuples with motor and velocity
+	parsedInstructions = []
+	for i in instructions:
+		velocitySeries = []
+		splitbycomma = i.split(',')
+		for j in splitbycomma:
+			splitbydash = j.split('-')
+			velocitySeries.append((int((splitbydash[0])), int(splitbydash[1])))
+		parsedInstructions.append(velocitySeries)
+
+def moveRobot(clientID, robotMovement, LUM, LLM, RUM, RLM):
+	#This if statement determines which movement the robot sould perform
+	if (robotMovement == 1):
+		#Right_contract
+		lowerSpeed = -1
+		upperSpeed = 1
+		vrep.simxSetJointTargetVelocity(clientID, RUM, upperSpeed, vrep.simx_opmode_oneshot)
+		vrep.simxSetJointTargetVelocity(clientID, RLM, lowerSpeed, vrep.simx_opmode_oneshot)
+	elif (robotMovement == 2):
+		#Right_stretch
+		lowerSpeed = 1
+		upperSpeed = -1
+		vrep.simxSetJointTargetVelocity(clientID, RUM, upperSpeed, vrep.simx_opmode_oneshot)
+		vrep.simxSetJointTargetVelocity(clientID, RLM, lowerSpeed, vrep.simx_opmode_oneshot)
+	elif (robotMovement == 3):
+		#Right_ahead
+		lowerSpeed = 0
+		upperSpeed = 1
+		vrep.simxSetJointTargetVelocity(clientID, RUM, upperSpeed, vrep.simx_opmode_oneshot)
+		vrep.simxSetJointTargetVelocity(clientID, RLM, lowerSpeed, vrep.simx_opmode_oneshot)
+	elif (robotMovement == 4):
+		#Right_back
+		lowerSpeed = 0
+		upperSpeed = -1
+		vrep.simxSetJointTargetVelocity(clientID, RUM, upperSpeed, vrep.simx_opmode_oneshot)
+		vrep.simxSetJointTargetVelocity(clientID, RLM, lowerSpeed, vrep.simx_opmode_oneshot)
+	elif (robotMovement == 5):
+		#Left_contract
+		lowerSpeed = -1
+		upperSpeed = 1
+		vrep.simxSetJointTargetVelocity(clientID, LUM, upperSpeed, vrep.simx_opmode_oneshot)
+		vrep.simxSetJointTargetVelocity(clientID, LLM, lowerSpeed, vrep.simx_opmode_oneshot)
+	elif (robotMovement == 6):
+		#Left_stretch
+		lowerSpeed = 1
+		upperSpeed = -1
+		vrep.simxSetJointTargetVelocity(clientID, LUM, upperSpeed, vrep.simx_opmode_oneshot)
+		vrep.simxSetJointTargetVelocity(clientID, LLM, lowerSpeed, vrep.simx_opmode_oneshot)
+	elif (robotMovement == 7):
+		#Left_ahead
+		lowerSpeed = 0
+		upperSpeed = 1
+		vrep.simxSetJointTargetVelocity(clientID, LUM, upperSpeed, vrep.simx_opmode_oneshot)
+		vrep.simxSetJointTargetVelocity(clientID, LLM, lowerSpeed, vrep.simx_opmode_oneshot)
+	elif (robotMovement == 8):
+		#Left_back
+		lowerSpeed = 0
+		upperSpeed = -1
+		vrep.simxSetJointTargetVelocity(clientID, LUM, upperSpeed, vrep.simx_opmode_oneshot)
+		vrep.simxSetJointTargetVelocity(clientID, LLM, lowerSpeed, vrep.simx_opmode_oneshot)
+	elif (robotMovement == 9):
+		#Stop_left
+		lowerSpeed = 0
+		upperSpeed = 0
+		vrep.simxSetJointTargetVelocity(clientID, LUM, upperSpeed, vrep.simx_opmode_oneshot)
+		vrep.simxSetJointTargetVelocity(clientID, LLM, lowerSpeed, vrep.simx_opmode_oneshot)
+	elif (robotMovement == 10):
+		#Stop_right
+		lowerSpeed = 0
+		upperSpeed = 0
+		vrep.simxSetJointTargetVelocity(clientID, RUM, upperSpeed, vrep.simx_opmode_oneshot)
+		vrep.simxSetJointTargetVelocity(clientID, RLM, lowerSpeed, vrep.simx_opmode_oneshot)
