@@ -3,6 +3,7 @@
 
 import vrep 
 import time
+import math
 import numpy as np
 import matplotlib.pyplot as plt
 import secuenceGenerator as sg
@@ -218,7 +219,8 @@ def mainLoop(mode):
 			fallenFactor = 0
 			if hasFallen:
 				fallenFactor = -50
-			runInfo.append((secuenceIndex, sum(map(lambda x:1/distancia(x[0][1],puntoMovil(x[1])),headTrace))+fallenFactor))
+			#TODO verificar que esta función está bien y que el cálculo es correcto. Porque el ideal no está obteniendo un puntaje alto.También puede ser que el cálculo del punto movil no sea correcto o que el sampling del tiempo no sea el adecuado.
+			runInfo.append((secuenceIndex, sum(map(lambda x:math.log(1/distancia(x[0][1],puntoMovil(x[1]))),headTrace))+fallenFactor))
 			print(runInfo[-1])
 			secuenceIndex+=1
 			#Stop_Start_Simulation
@@ -264,9 +266,9 @@ def mainLoop(mode):
 		print ("No se pudo establecer conexión con la api del simulador")
 		print ("Verificar que el simulador está abierto")
 
-# for x in range(0,3):
-# 	print("Vuelta número: ",x)
-	# mainLoop('incr')
-mainLoop('visual')
+for x in range(0,25):
+	print("Vuelta número: ",x)
+	mainLoop('incr')
+# mainLoop('visual')
 
 
