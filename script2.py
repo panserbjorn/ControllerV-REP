@@ -126,7 +126,7 @@ def mainLoop(mode):
 		nombreArchivo = "nuevo.txt"
 	else: 
 		print("El programa se ejecutará para visualizar las mejores corridas")
-		nombreArchivo = "mejores.txt"
+		nombreArchivo = "archivo.txt"
 	vrep.simxFinish(-1)
 	portNumb = 19997
 	clientID = vrep.simxStart('127.0.0.1', portNumb, True, True, 5000, 5)
@@ -170,6 +170,7 @@ def mainLoop(mode):
 			instructionIndex = 0
 			headTrace = []
 			extraPoints = 0
+			runtime = 0
 			for instruction in secuence:
 				instructionIndex+=1
 				
@@ -178,24 +179,25 @@ def mainLoop(mode):
 				#This is what makes the simulation Synchronous
 				initialTime = 0.0
 				actualTime = initialTime + dt
-				
+				runtime += dt
 				#Condition to stop simulation
 				hasFallen = False
 				vrep.simxSynchronousTrigger(clientID)
 
 				#Retrive head position
 				headPosition = vrep.simxGetObjectPosition(clientID, head, -1, vrep.simx_opmode_oneshot)
-				headTrace.append((headPosition,actualTime))
+				#headTrace.append((headPosition,runtime))
 				while((actualTime - initialTime) < (instruction[1]/10)):
 					#Make de simulation run one step (dt determines how many seconds pass by between step and step)
 					vrep.simxSynchronousTrigger(clientID)
 					#Advance time in my internal counter
 					actualTime = actualTime + dt
+					runtime += dt
 					#TODO do I still need the extra points for time?
 					extraPoints += dt
 					#Retrive head position
 					headPosition = vrep.simxGetObjectPosition(clientID, head, -1, vrep.simx_opmode_oneshot)
-					headTrace.append((headPosition,actualTime))
+					headTrace.append((headPosition,runtime))
 					
 					#Verify that the model hasn't fallen
 					if(headPosition[0] == 0 and headPosition[1][2]<0.65):
@@ -223,6 +225,7 @@ def mainLoop(mode):
 			runInfo.append((secuenceIndex, sum(map(lambda x:math.log(1/distancia(x[0][1],puntoMovil(x[1]))),headTrace))+fallenFactor))
 			print(runInfo[-1])
 			secuenceIndex+=1
+			#TODO Plot head position, imaginary point position and distance. 
 			#Stop_Start_Simulation
 			vrep.simxStopSimulation(clientID, vrep.simx_opmode_blocking)
 			#This sleep is necesary for the simulation to finish stopping before starting again
@@ -255,9 +258,9 @@ def mainLoop(mode):
 			sg.recordSecuences(filteredBestSec + newLot, "nuevo.txt")
 		else:
 			for h in headSecuenceTrace:
-				plt.plot(np.linspace(0,1,len(h)),list(map(lambda x:x[0][1][0],h)))
-				plt.plot(np.linspace(0,1,len(h)),list(map(lambda x:x[0][1][1],h)))
-				plt.plot(np.linspace(0,1,len(h)),list(map(lambda x:x[0][1][2],h)))
+				plt.plot(list(map(lambda x:x[1],h)),list(map(lambda x:x[0][1][0],h)))
+				plt.plot(list(map(lambda x:x[1],h)),list(map(lambda x:x[0][1][1],h)))
+				plt.plot(list(map(lambda x:x[1],h)),list(map(lambda x:x[0][1][2],h)))
 			plt.show()
 
 
@@ -266,9 +269,9 @@ def mainLoop(mode):
 		print ("No se pudo establecer conexión con la api del simulador")
 		print ("Verificar que el simulador está abierto")
 
-for x in range(0,25):
-	print("Vuelta número: ",x)
-	mainLoop('incr')
-# mainLoop('visual')
+# for x in range(0,25):
+# 	print("Vuelta número: ",x)
+# 	mainLoop('incr')
+mainLoop('visual')
 
 
