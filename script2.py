@@ -112,7 +112,7 @@ def distancia(puntoA, puntoB):
 	return abs(puntoA[0]-puntoB[0])+ abs(puntoA[2]-puntoB[2])
 
 def puntoMovil(tiempo):
-	return (tiempo-1.75,0.03,0.8)
+	return ((tiempo*0.088)-1.7,0.03,0.8)
 
 #Código del controlador
 '''
