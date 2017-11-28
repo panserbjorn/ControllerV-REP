@@ -166,7 +166,7 @@ def mainLoop(mode):
 		nombreArchivo = "archivo.txt"
 		#Read Instructions from file
 		instructions = readInstructions(nombreArchivo)
-		sortedScore = foo(19997,instructions)
+		sortedScore = foo(19991,instructions)
 		for h in range(0,10):
 				plt.plot(list(map(lambda x:x[1],sortedScore[h][2])),list(map(lambda x:x[0][1][0],sortedScore[h][2])))
 				timeList = list(map(lambda x:x[1],sortedScore[0][2]))
@@ -295,7 +295,6 @@ def foo (portNumb, instructions):
 # for x in range(0,25):
 # 	print("Vuelta número: ",x)
 # 	mainLoop('incr')
-print(vrep.simxStart('127.0.0.1', 19990, True, True, 5000, 5))
-mainLoop('visual')
+mainLoop('incr')
 
 
