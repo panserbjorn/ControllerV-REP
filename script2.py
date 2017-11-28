@@ -29,11 +29,9 @@ def readInstructions(fileName):
 	for line in archivo:
 		instructions.append(line)
 	archivo.close()
-	#print(instructions)
 	#Remove ending '\n' from strings
 	for i in range(0,len(instructions)):
 		instructions[i] = instructions[i].replace('\n', '')
-	#print(instructions)
 	#Parse lines of instructions to list of list of tuples with motor and velocity
 	parsedInstructions = []
 	for i in instructions:
@@ -112,7 +110,7 @@ def distancia(puntoA, puntoB):
 	return abs(puntoA[0]-puntoB[0])+ abs(puntoA[2]-puntoB[2])
 
 def puntoMovil(tiempo):
-	return ((tiempo*0.088)-1.7,0.03,0.8)
+	return ((tiempo*0.088)-1.5,0.03,0.8)
 
 #Código del controlador
 '''
@@ -201,8 +199,8 @@ def mainLoop(mode):
 					
 					#Verify that the model hasn't fallen
 					if(headPosition[0] == 0 and headPosition[1][2]<0.65):
-						print("posición de la cabeza:", headPosition[1][2])
-						print("tiempo: ", actualTime)
+						print("Posición de la cabeza:", headPosition[1][2])
+						print("tiempo: ", runtime)
 						hasFallen = True
 						break
 				if(hasFallen):
@@ -210,22 +208,23 @@ def mainLoop(mode):
 			if (hasFallen):
 				print ("Secuence: ", secuenceIndex, " has fallen!!")
 			else:
-				print("Secuence: ", secuenceIndex, " has finished")
+				print("Secuence: ", secuenceIndex, " has finished without falling")
 			print(secuence)
 			
 			secuenceTimes.append(extraPoints)
-			#Here I collect the data for the whole secuence
-			headSecuenceTrace.append(list(filter(lambda x: x[0][0] == 0,headTrace)))
-			#runInfo.append((secuenceIndex,max(list(map(lambda x: x[1][0],list(filter(lambda x: x[0] == 0 and x[1][2] > 0.65,headTrace)))))+extraPoints))
+		#Here I collect the data for the whole secuence
+			#filter not valid positions
+			headTrace = list(filter(lambda x: x[0][0] == 0,headTrace))
+			#add to whole run trace info
+			headSecuenceTrace.append(headTrace)
 
 			fallenFactor = 0
 			if hasFallen:
 				fallenFactor = -50
-			#TODO verificar que esta función está bien y que el cálculo es correcto. Porque el ideal no está obteniendo un puntaje alto.También puede ser que el cálculo del punto movil no sea correcto o que el sampling del tiempo no sea el adecuado.
-			runInfo.append((secuenceIndex, sum(map(lambda x:math.log(1/distancia(x[0][1],puntoMovil(x[1]))),headTrace))+fallenFactor))
-			print(runInfo[-1])
+			#format: (index, score, headtrace((valid,(x,y,z),time))
+			runInfo.append((secuenceIndex, sum(map(lambda x:math.log(1/distancia(x[0][1],puntoMovil(x[1]))),headTrace))+fallenFactor,headTrace))
+			print("puntaje obtenido",runInfo[-1][1])
 			secuenceIndex+=1
-			#TODO Plot head position, imaginary point position and distance. 
 			#Stop_Start_Simulation
 			vrep.simxStopSimulation(clientID, vrep.simx_opmode_blocking)
 			#This sleep is necesary for the simulation to finish stopping before starting again
@@ -237,10 +236,7 @@ def mainLoop(mode):
 		
 		
 		'''
-		TODO Ahora tengo que ver de graficar por separado cada una de las secuencias 
-		y en cada una de ellas poder ver los 3 ejes en lugar de solo el x. 
-		así después puedo ver cómo hacer para asignar un valor de resultado
-		a cada una de las corridas. El cual va a depender de cómo se movió la cabeza en los 3 ejes.
+		TODO Ahora tengo que graficar la posición x de la cabez en las mejores 10 corridas y también el punto móvil 
 		'''
 		#Visualization of the info collected
 
@@ -249,7 +245,7 @@ def mainLoop(mode):
 		for i in range(0,10):
 			filteredBestSec.append(instructions[sortedScore[i][0]])
 		sg.recordSecuences(filteredBestSec, "mejores.txt")
-		print(runInfo)
+		# print(runInfo)
 		sg.recordRunOutput(runInfo, "salida.txt")
 		if mode == 'incr':
 			newLot = []
@@ -257,10 +253,20 @@ def mainLoop(mode):
 				newLot = newLot + sg.generateNewSec(x,10)
 			sg.recordSecuences(filteredBestSec + newLot, "nuevo.txt")
 		else:
-			for h in headSecuenceTrace:
-				plt.plot(list(map(lambda x:x[1],h)),list(map(lambda x:x[0][1][0],h)))
-				plt.plot(list(map(lambda x:x[1],h)),list(map(lambda x:x[0][1][1],h)))
-				plt.plot(list(map(lambda x:x[1],h)),list(map(lambda x:x[0][1][2],h)))
+			# TODO graficar solo las mejores 10 y el punto móvil. 
+			for h in range(0,10):
+				# print ("esto debería ser el tiempo: ", sortedScore[h][2][0])
+				# print ("Que es esto?: ", sortedScore[h][0], " ----  ", sortedScore[h][1])
+				# # print ("esto debería ser el valor de x: ", sortedScore[h][2][0][1])
+
+				# print (list(map(lambda x:x[2][1],sortedScore[h])))
+				# print (list(map(lambda x:x[2][0][1][0],sortedScore[h])))
+				plt.plot(list(map(lambda x:x[1],sortedScore[h][2])),list(map(lambda x:x[0][1][0],sortedScore[h][2])))
+
+				#plt.plot(list(map(lambda x:x[1],h)),list(map(lambda x:x[0][1][1],sortedScore[h])))
+				#plt.plot(list(map(lambda x:x[1],h)),list(map(lambda x:x[0][1][2],sortedScore[h])))
+				timeList = list(map(lambda x:x[1],sortedScore[0][2]))
+			plt.plot(timeList,list(map(lambda x: puntoMovil(x)[0],timeList)))
 			plt.show()
 
 
