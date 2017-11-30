@@ -15,17 +15,7 @@ from multiprocessing.pool import ThreadPool
 		#Visualization of the info collected
 
 '''
-		filteredBestSec = []
-		for i in range(0,10):
-			filteredBestSec.append(instructions[sortedScore[i][0]])
-		sg.recordSecuences(filteredBestSec, "mejores.txt")
-		# print(runInfo)
-		sg.recordRunOutput(runInfo, "salida.txt")
-		if mode == 'incr':
-			newLot = []
-			for x in filteredBestSec:
-				newLot = newLot + sg.generateNewSec(x,10)
-			sg.recordSecuences(filteredBestSec + newLot, "nuevo.txt")
+		
 		else:
 '''
 
@@ -160,7 +150,21 @@ def mainLoop(mode):
 
 		pool.close()
 		pool.join()	
-		print (runInto)
+		runInfo = [r.get() for r in runInfo]
+		runInfo2 = []
+		for i in runInfo:
+			runInfo2 += i
+		sortedScore = sorted(runInfo2, key=lambda x:x[1], reverse=True)
+		filteredBestSec = []
+		for i in range(0,10):
+			filteredBestSec.append(instructions[sortedScore[i][0]])
+		sg.recordSecuences(filteredBestSec, "mejores.txt")
+		# print(runInfo)
+		sg.recordRunOutput(runInfo, "salida.txt")
+		newLot = []
+		for x in filteredBestSec:
+			newLot = newLot + sg.generateNewSec(x,10)
+		sg.recordSecuences(filteredBestSec + newLot, "nuevo.txt")
 	else: 
 		print("El programa se ejecutará para visualizar las mejores corridas")
 		nombreArchivo = "archivo.txt"
@@ -251,8 +255,8 @@ def foo (portNumb, instructions):
 					
 					#Verify that the model hasn't fallen
 					if(headPosition[0] == 0 and headPosition[1][2]<0.65):
-						print("Posición de la cabeza:", headPosition[1][2])
-						print("tiempo: ", runtime)
+						#print("Posición de la cabeza:", headPosition[1][2])
+						#print("tiempo: ", runtime)
 						hasFallen = True
 						break
 				if(hasFallen):
@@ -261,7 +265,7 @@ def foo (portNumb, instructions):
 				print ("Secuence: ", secuenceIndex, " has fallen!!")
 			else:
 				print("Secuence: ", secuenceIndex, " has finished without falling")
-			print(secuence)
+			#print(secuence)
 			
 			secuenceTimes.append(extraPoints)
 		#Here I collect the data for the whole secuence
