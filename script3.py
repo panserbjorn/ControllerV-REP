@@ -299,6 +299,6 @@ def foo (portNumb, instructions):
 # for x in range(0,25):
 # 	print("Vuelta número: ",x)
 # 	mainLoop('incr')
-mainLoop('incr')
+mainLoop('visual')
 
 
