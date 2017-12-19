@@ -9,15 +9,6 @@ import matplotlib.pyplot as plt
 import secuenceGenerator as sg
 from multiprocessing.pool import ThreadPool
 
-'''
-		TODO Ahora tengo que graficar la posición x de la cabez en las mejores 10 corridas y también el punto móvil 
-'''
-		#Visualization of the info collected
-
-'''
-		
-		else:
-'''
 
 #Funciones auxiliares:
 
@@ -127,7 +118,7 @@ def distancia(puntoA, puntoB):
 	return abs(puntoA[0]-puntoB[0])+ abs(puntoA[2]-puntoB[2])
 
 def puntoMovil(tiempo):
-	return ((tiempo*0.088)-1.5,0.03,0.8)
+	return ((tiempo*0.09)-1.5,0.03,0.8)
 
 #Código del controlador
 '''
@@ -296,7 +287,7 @@ def foo (portNumb, instructions):
 		print ("No se pudo establecer conexión con la api del simulador en el puerto: ", portNumb)
 		print ("Verificar que el simulador está abierto")
 
-# for x in range(0,25):
+# for x in range(0,2):
 # 	print("Vuelta número: ",x)
 # 	mainLoop('incr')
 mainLoop('visual')
