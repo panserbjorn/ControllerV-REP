@@ -152,14 +152,14 @@ def mainLoop(mode):
 		for i in range(0,10):
 			filteredBestSec.append(instructions[sortedScore[i][0]])
 		#Get some random secuences for noise
-		for i in range(0,5):
+		for i in range(0,10):
 			filteredBestSec.append(random.choice(instructions)[0])	
 		sg.recordSecuences(filteredBestSec, "mejores.txt")
 		# print(runInfo)
 		sg.recordRunOutput(runInfo, "salida.txt")
 		newLot = []
 		for x in filteredBestSec:
-			newLot = newLot + sg.generateNewSec(x,10)
+			newLot = newLot + sg.generateNewSec(x,20)
 		sg.recordSecuences(filteredBestSec + newLot, "nuevo.txt")
 	else: 
 		print("El programa se ejecutará para visualizar las mejores corridas")
