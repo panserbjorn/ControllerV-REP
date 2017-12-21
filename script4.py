@@ -151,16 +151,21 @@ def mainLoop(mode):
 		#Get 10 best secuences
 		for i in range(0,10):
 			filteredBestSec.append(instructions[sortedScore[i][0]])
+		sg.recordSecuences(filteredBestSec, "mejores.txt")
 		#Get some random secuences for noise
 		for i in range(0,10):
-			filteredBestSec.append(random.choice(instructions)[0])	
-		sg.recordSecuences(filteredBestSec, "mejores.txt")
+			filteredBestSec.append(random.choice(instructions))	
+		
 		# print(runInfo)
 		sg.recordRunOutput(runInfo, "salida.txt")
 		newLot = []
 		for x in filteredBestSec:
 			newLot = newLot + sg.generateNewSec(x,20)
+		print(filteredBestSec[0])
+		print("-----------------")
+		print(newLot[0])
 		sg.recordSecuences(filteredBestSec + newLot, "nuevo.txt")
+
 	else: 
 		print("El programa se ejecutará para visualizar las mejores corridas")
 		nombreArchivo = "mejores.txt"
@@ -292,9 +297,9 @@ def foo (portNumb, instructions):
 		print ("No se pudo establecer conexión con la api del simulador en el puerto: ", portNumb)
 		print ("Verificar que el simulador está abierto")
 
-for x in range(0,50):
-	print("Vuelta número: ",x)
-	mainLoop('incr')
-# mainLoop('visual')
+# for x in range(0,20):
+# 	print("Vuelta número: ",x)
+# 	mainLoop('incr')
+mainLoop('visual')
 
 

@@ -158,7 +158,7 @@ def mainLoop(mode):
 		sg.recordSecuences(filteredBestSec + newLot, "nuevo.txt")
 	else: 
 		print("El programa se ejecutará para visualizar las mejores corridas")
-		nombreArchivo = "archivo.txt"
+		nombreArchivo = "mejores.txt"
 		#Read Instructions from file
 		instructions = readInstructions(nombreArchivo)
 		sortedScore = foo(19991,instructions)
@@ -287,7 +287,7 @@ def foo (portNumb, instructions):
 		print ("No se pudo establecer conexión con la api del simulador en el puerto: ", portNumb)
 		print ("Verificar que el simulador está abierto")
 
-# for x in range(0,2):
+# for x in range(0,50):
 # 	print("Vuelta número: ",x)
 # 	mainLoop('incr')
 mainLoop('visual')
