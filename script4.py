@@ -125,6 +125,7 @@ def puntoMovil(tiempo):
 '''
 TODO Debería mejorar el modo de ejecución por parámetros por consola
 TODO Debería agregar un modo más solo para ver las corridas que se encuentran en archivo.txt, porque muchas veces estoy viendo esas para compararlas con las generadas.
+TODO Debería agregar un modo en el cual se genera una nueva carpeta y las corridas se generan ahí. Para no pisar las corridas anteriores.
 '''
 def mainLoop(mode):
 	nombreArchivo = ""
@@ -154,9 +155,7 @@ def mainLoop(mode):
 		sg.recordSecuences(filteredBestSec, "mejores.txt")
 		#Get some random secuences for noise
 		for i in range(0,10):
-			filteredBestSec.append(random.choice(instructions))	
-		
-		# print(runInfo)
+			filteredBestSec.append(random.choice(instructions))
 		sg.recordRunOutput(runInfo, "salida.txt")
 		newLot = []
 		for x in filteredBestSec:
@@ -185,7 +184,7 @@ def mainLoop(mode):
 	
 
 
-#Function for the worker (or pool thread I don't know yet)
+
 def foo (portNumb, instructions):
 	clientID = vrep.simxStart('127.0.0.1', portNumb, True, True, 5000, 5)
 	if clientID != -1 :
@@ -269,7 +268,7 @@ def foo (portNumb, instructions):
 			#print(secuence)
 			
 			secuenceTimes.append(extraPoints)
-		#Here I collect the data for the whole secuence
+			#Here I collect the data for the whole secuence
 			#filter not valid positions
 			headTrace = list(filter(lambda x: x[0][0] == 0,headTrace))
 			#add to whole run trace info
