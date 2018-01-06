@@ -6,7 +6,8 @@ import time
 import math
 import numpy as np
 import matplotlib.pyplot as plt
-import secuenceGenerator as sg
+import secuenceGenerator2 as sg
+import random
 from multiprocessing.pool import ThreadPool
 
 
@@ -107,7 +108,7 @@ def moveRobot(clientID, robotMovement, LUM, LLM, RUM, RLM):
 		upperSpeed = 0
 		vrep.simxSetJointTargetVelocity(clientID, LUM, upperSpeed, vrep.simx_opmode_oneshot)
 		vrep.simxSetJointTargetVelocity(clientID, LLM, lowerSpeed, vrep.simx_opmode_oneshot)
-	elif (robotMovement == 10):
+	else:
 		#Stop_right
 		lowerSpeed = 0
 		upperSpeed = 0
@@ -147,15 +148,24 @@ def mainLoop(mode):
 			runInfo2 += i
 		sortedScore = sorted(runInfo2, key=lambda x:x[1], reverse=True)
 		filteredBestSec = []
+		#Get 10 best secuences
 		for i in range(0,10):
 			filteredBestSec.append(instructions[sortedScore[i][0]])
 		sg.recordSecuences(filteredBestSec, "mejores.txt")
+		#Get some random secuences for noise
+		for i in range(0,10):
+			filteredBestSec.append(random.choice(instructions))	
+		
 		# print(runInfo)
 		sg.recordRunOutput(runInfo, "salida.txt")
 		newLot = []
 		for x in filteredBestSec:
-			newLot = newLot + sg.generateNewSec(x,10)
+			newLot = newLot + sg.generateNewSec(x,20)
+		print(filteredBestSec[0])
+		print("-----------------")
+		print(newLot[0])
 		sg.recordSecuences(filteredBestSec + newLot, "nuevo.txt")
+
 	else: 
 		print("El programa se ejecutará para visualizar las mejores corridas")
 		nombreArchivo = "mejores.txt"
@@ -287,7 +297,7 @@ def foo (portNumb, instructions):
 		print ("No se pudo establecer conexión con la api del simulador en el puerto: ", portNumb)
 		print ("Verificar que el simulador está abierto")
 
-# for x in range(0,50):
+# for x in range(0,20):
 # 	print("Vuelta número: ",x)
 # 	mainLoop('incr')
 mainLoop('visual')
