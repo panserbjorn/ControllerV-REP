@@ -25,9 +25,9 @@ This implementation learns policies for continuous environments
 in the OpenAI Gym (https://gym.openai.com/). Testing was focused on
 the MuJoCo control tasks.
 """
-import gym
+#import gym
 import numpy as np
-from gym import wrappers
+#from gym import wrappers
 from policy import Policy
 from value_function import NNValueFunction
 import scipy.signal
@@ -96,8 +96,9 @@ def run_episode(env, policy, scaler, animate=False):
     scale[-1] = 1.0  # don't scale time step feature
     offset[-1] = 0.0  # don't offset time step feature
     while not done:
-        if animate:
-            env.render()
+        #No se va a animar nunca en mi caso
+        # if animate:
+        #     env.render()
         obs = obs.astype(np.float64).reshape((1, -1))
         obs = np.append(obs, [[step]], axis=1)  # add time step feature
         unscaled_obs.append(obs)
@@ -109,8 +110,8 @@ def run_episode(env, policy, scaler, animate=False):
         if not isinstance(reward, float):
             reward = np.asscalar(reward)
         rewards.append(reward)
-        #TODO Change time step to 50 ms 
-        step += 1e-3  # increment time step feature
+        # step += 1e-3  # increment time step feature
+        step += 0.05
 
     return (np.concatenate(observes), np.concatenate(actions),
             np.array(rewards, dtype=np.float64), np.concatenate(unscaled_obs))
