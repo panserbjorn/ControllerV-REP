@@ -36,7 +36,7 @@ from datetime import datetime
 import os
 import argparse
 import signal
-
+import mysimulatedEnv
 
 class GracefulKiller:
     """ Gracefully exit program on CTRL-C """
@@ -63,9 +63,10 @@ def init_gym(env_name):
         number of action dimensions (int)
     """
     #TODO Debo cambiar este environment por una calse mia que haga lo mismo
-    env = gym.make(env_name)
-    obs_dim = env.observation_space.shape[0]
-    act_dim = env.action_space.shape[0]
+    #env = gym.make(env_name)
+    env = myEnv()
+    obs_dim = env.observation_space
+    act_dim = env.action_space
 
     
     return env, obs_dim, act_dim
