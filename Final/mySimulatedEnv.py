@@ -69,11 +69,13 @@ Devuelve la posición de un objeto dentro del simulador
 def getPosition(clientID, objectID)
 	return vrep.simxGetObjectPosition(clientID, objectID, -1, vrep.simx_opmode_oneshot)
 
+
+
 class myEnv():
 	portNumb
-	logFileName
+	#logFileName
 	actions
-	score
+	#score
 	hasfallen
 	LUM
 	LLM
@@ -163,8 +165,22 @@ class myEnv():
 	Este método reinicia la simulación
 	'''
 	def reset(self):
+		self.actions = []
+		self.hasFallen = False
+		vrep.simxStopSimulation(self.clientID, vrep.simx_opmode_blocking)
+		#This sleep is necesary for the simulation to finish stopping before starting again
+		time.sleep(2)
+		vrep.simxStartSimulation(self.clientID, vrep.simx_opmode_blocking)
 
 	
+	def advanceTime():
+		vrep.simxSynchronousTrigger(self.clientID)
 
+	def moveRobot(self, codedAction):
+		setVelocity(self.clientID, self.LUM, codedAction[0])
+		setVelocity(self.clientID, self.LLM, codedAction[1])
+		setVelocity(self.clientID, self.RUM, codedAction[2])
+		setVelocity(self.clientID, self.RLM, codedAction[3])
+		advanceTime()
 
 

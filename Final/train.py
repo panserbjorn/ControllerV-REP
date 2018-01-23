@@ -62,11 +62,11 @@ def init_gym(env_name):
         number of observation dimensions (int)
         number of action dimensions (int)
     """
-    #TODO Debo cambiar este environment por una calse mia que haga lo mismo
+    
     #env = gym.make(env_name)
     env = myEnv()
-    obs_dim = env.observation_space
-    act_dim = env.action_space
+    obs_dim = len(env.observation_space)
+    act_dim = len(env.action_space)
 
     
     return env, obs_dim, act_dim
