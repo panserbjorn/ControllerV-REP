@@ -13,10 +13,10 @@ def puntoMovil(tiempo):
 
 def calculateReward(prevObs, obs, numActions):
 	time = numActions*0.05
-	puntoMovil = puntoMovil(time)
-	prevPos = prevObs[-1][1][0]
-	actualPos = obs[-1][1][0]
-	reward = distancia(prevPos,puntoMovil) - distancia(actualPos, puntoMovil)
+	puntoM = puntoMovil(time)
+	prevPos = prevObs[-1][1]
+	actualPos = obs[-1][1]
+	reward = distancia(prevPos,puntoM) - distancia(actualPos, puntoM)
 	stillAliveBonus = 5
 	return reward + stillAliveBonus
 
@@ -29,17 +29,17 @@ def decimalToOneHot(decimal):
 	oneHot = [0,0,0,0]
 	if (decimal/27 >= 2 ):
 		oneHot[0] = 1
-	elif (deimal /27 < 1):
+	elif (decimal /27 < 1):
 		oneHot[0] = -1
 	decimal = decimal % 27
 	if (decimal/9 >= 2 ):
 		oneHot[1] = 1
-	elif (deimal /9 < 1):
+	elif (decimal /9 < 1):
 		oneHot[1] = -1
 	decimal = decimal %9
 	if (decimal/3 >= 2 ):
 		oneHot[2] = 1
-	elif (deimal /3 < 1):
+	elif (decimal /3 < 1):
 		oneHot[2] = -1
 	oneHot[3] = decimal%3
 	return oneHot
@@ -56,7 +56,8 @@ def recoverRobotParts(clientID):
 	LLMRetCode, LLM = vrep.simxGetObjectHandle(clientID, "LLM", vrep.simx_opmode_blocking)
 	RUMRetCode, RUM = vrep.simxGetObjectHandle(clientID, "RUM", vrep.simx_opmode_blocking)
 	RLMRetCode, RLM = vrep.simxGetObjectHandle(clientID, "RLM", vrep.simx_opmode_blocking)
-
+	headRetCode, head = vrep.simxGetObjectHandle(clientID, "Head", vrep.simx_opmode_blocking)
+	return (LUM,LLM,RUM,RLM,head)
 '''
 Cambia la velocidad de un motor en el simulador
 '''
@@ -66,33 +67,33 @@ def setVelocity(clientID, motorHandle, targetVelocity):
 '''
 Devuelve la posición de un objeto dentro del simulador
 '''
-def getPosition(clientID, objectID)
+def getPosition(clientID, objectID):
 	return vrep.simxGetObjectPosition(clientID, objectID, -1, vrep.simx_opmode_oneshot)
 
 
 
 class myEnv():
-	portNumb
+	portNumb = 19997
 	#logFileName
-	actions
+	actions = []
 	#score
-	hasfallen
-	LUM
-	LLM
-	RUM
-	RLM
-	head
-	LUMSpeed
-	LLMSpeed
-	RUMSpeed
-	RLMSpeed
-	clientID
+	hasFallen = False
+	LUM = 0
+	LLM = 0
+	RUM = 0
+	RLM = 0
+	head = 0
+	LUMSpeed = 0
+	LLMSpeed = 0
+	RUMSpeed = 0
+	RLMSpeed = 0
+	clientID = -1
 	#1200 acciones está bien, es un minuto
 	maxActions = 1200
 
 
 	
-	def _init_(self):
+	def __init__(self):
 		self.portNumb = 19997
 		self.actions = []
 		self.score = 0
@@ -103,17 +104,25 @@ class myEnv():
 		self.RLMSpeed = 0
 		self.clientID = vrep.simxStart('127.0.0.1', self.portNumb, True, True, 5000, 5)
 		if self.clientID != -1 :
-		print ("se pudo establecer la conexión con la api del simulador")
-		self.LUM,self.LLM,self.RUM,self.RLM,self.head = recoverRobotParts(self.clientID)
-		setVelocity(self.clientID,self.LUM,self.LUMSpeed)
-		setVelocity(self.clientID,self.LLM,self.LLMSpeed)
-		setVelocity(self.clientID,self.RUM,self.RUMSpeed)
-		setVelocity(self.clientID,self.RLM,self.RLMSpeed)
-		#Set simulation to be Synchonous instead of Asynchronous
-		vrep.simxSynchronous(self.clientID, True)
-		#Start simulation if it didn't start
-		vrep.simxStartSimulation(self.clientID,vrep.simx_opmode_blocking)
-		vrep.simxSynchronousTrigger(self.clientID)
+			print ("Se pudo establecer la conexión con la api del simulador")
+			LUM,LLM,RUM,RLM,head = recoverRobotParts(self.clientID)
+			self.LUM  = LUM
+			self.LLM = LLM
+			self.RUM = RUM
+			self.RLM = RLM
+			self.head = head
+			#Set simulation to be Synchonous instead of Asynchronous
+			vrep.simxSynchronous(self.clientID, True)
+			#Start simulation if it didn't start
+			vrep.simxStartSimulation(self.clientID,vrep.simx_opmode_blocking)
+			setVelocity(self.clientID,self.LUM,self.LUMSpeed)
+			setVelocity(self.clientID,self.LLM,self.LLMSpeed)
+			setVelocity(self.clientID,self.RUM,self.RUMSpeed)
+			setVelocity(self.clientID,self.RLM,self.RLMSpeed)
+			#Esto es necesario porque la primera observación siempre es incorrecta
+			self.observation_space()
+			vrep.simxSynchronousTrigger(self.clientID)
+
 	'''
 	Devuelve las observaciones del robot (estado):
 		- Posición LUM
@@ -135,10 +144,13 @@ class myEnv():
 	'''
 	Devuelve un array con la lista de acciones posibles en base decimal
 	'''
-	def action_space():
+	def action_space(self):
 		#Son las 64 configuraciones que pueden tener los motres (son 4 motores y 3 estados [apagado, encendido positivo, encendido negativo], así que es 4^3)
 		#return 4^3
-		return range(3^4)
+		action_s = []
+		for i in range(0,81):
+			action_s.append(i)
+		return action_s
 
 
 	'''
@@ -151,11 +163,11 @@ class myEnv():
 	'''
 	def step(self, action):
 		codedAction = decimalToOneHot(action)
-		self.actions += action
-		previousObs = observation_space()
-		moveRobot(codedAction)
-		obs = observation_space()
-		done = hasFallen(obs[-1]) || len(self.actions) > myEnv.maxActions	
+		self.actions.append(action)
+		previousObs = self.observation_space()
+		self.moveRobot(codedAction)
+		obs = self.observation_space()
+		done = hasFallen(obs[-1]) or len(self.actions) > myEnv.maxActions	
 		reward = calculateReward(previousObs, obs, len(self.actions))
 		return (obs, reward, done)
 
@@ -173,7 +185,7 @@ class myEnv():
 		vrep.simxStartSimulation(self.clientID, vrep.simx_opmode_blocking)
 
 	
-	def advanceTime():
+	def advanceTime(self):
 		vrep.simxSynchronousTrigger(self.clientID)
 
 	def moveRobot(self, codedAction):
@@ -181,6 +193,16 @@ class myEnv():
 		setVelocity(self.clientID, self.LLM, codedAction[1])
 		setVelocity(self.clientID, self.RUM, codedAction[2])
 		setVelocity(self.clientID, self.RLM, codedAction[3])
-		advanceTime()
+		self.advanceTime()
 
+	def __del__(self):
+		vrep.simxStopSimulation(self.clientID,vrep.simx_opmode_blocking)
 
+prueba = myEnv()
+#print(prueba.observation_space())
+vrep.simxSynchronousTrigger(prueba.clientID)
+print(prueba.observation_space())
+print(prueba.action_space())
+# prueba.reset()
+for i in range(200):
+	prueba.step(3)
