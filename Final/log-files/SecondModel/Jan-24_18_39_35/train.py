@@ -99,16 +99,16 @@ def run_episode(env, policy, scaler, animate=False):
         #No se va a animar nunca en mi caso
         # if animate:
         #     env.render()
-        # print(obs)
+        print(obs)
         obs = np.array(obs, dtype=np.float64).reshape((1, -1))
         obs = np.append(obs, [[step]], axis=1)  # add time step feature
         unscaled_obs.append(obs)
         obs = (obs - offset) * scale  # center and scale observations
         observes.append(obs)
         action = policy.sample(obs).reshape((1, -1)).astype(np.float64)
-        # print("Esta es la acción: ", action)
+        print("Esta es la acción: ", action)
         actions.append(action)
-        obs, reward, done = env.step(action)
+        obs, reward, done, _ = env.step(action)
         if not isinstance(reward, float):
             reward = np.asscalar(reward)
         rewards.append(reward)
@@ -217,8 +217,6 @@ def add_gae(trajectories, gamma, lam):
             rewards = trajectory['rewards']
         values = trajectory['values']
         # temporal differences
-        print(values)
-        print(rewards)
         tds = rewards - values + np.append(values[1:] * gamma, 0)
         advantages = discount(tds, gamma * lam)
         trajectory['advantages'] = advantages
@@ -337,4 +335,4 @@ def main(env_name, num_episodes, gamma, lam, kl_targ, batch_size):
 #     main(**vars(args))
 
 
-main("SecondModel", 200, 0.995, 0.98, 0.003, 20)
+main("SecondModel", 1, 0.995, 0.98, 0.003, 1)

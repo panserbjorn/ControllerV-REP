@@ -16,10 +16,7 @@ def calculateReward(prevObs, obs, numActions):
 	puntoM = puntoMovil(time)
 	prevPos = prevObs[16:]
 	actualPos = obs[16:]
-	print("posición Actual: ",actualPos)
-	print('Punto Móvil: ', puntoM)
-	#TODO Verificar que el reward esté bien.
-	reward = (1/distancia(actualPos, puntoM)) - (1/distancia(prevPos,puntoM) )
+	reward = distancia(prevPos,puntoM) - distancia(actualPos, puntoM)
 	stillAliveBonus = 5
 	return reward + stillAliveBonus
 
@@ -171,9 +168,9 @@ class myEnv:
 		previousObs = self.observation_space()
 		self.moveRobot(codedAction)
 		obs = self.observation_space()
-		done = hasFallen(obs[18]) or len(self.actions) > myEnv.maxActions
-		# if done:
-		# 	print("Se cayó!", obs[16], " - ", obs[17], " - ", obs[18])	
+		done = hasFallen(obs[16]) or len(self.actions) > myEnv.maxActions
+		if done:
+			print("Se cayó!", obs[16], " - ", obs[17], " - ", obs[18])	
 		reward = calculateReward(previousObs, obs, len(self.actions))
 		return (obs, reward, done)
 

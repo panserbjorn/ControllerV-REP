@@ -191,7 +191,7 @@ def add_value(trajectories, val_func):
     """
     for trajectory in trajectories:
         observes = trajectory['observes']
-        values = val_func.predict(observes)
+        values = np.array([val_func.predict(observes)], dtype=np.float64)
         trajectory['values'] = values
 
 
@@ -337,4 +337,4 @@ def main(env_name, num_episodes, gamma, lam, kl_targ, batch_size):
 #     main(**vars(args))
 
 
-main("SecondModel", 200, 0.995, 0.98, 0.003, 20)
+main("SecondModel", 20, 0.995, 0.98, 0.003, 10)

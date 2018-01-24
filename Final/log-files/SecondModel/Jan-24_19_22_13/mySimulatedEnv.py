@@ -17,9 +17,7 @@ def calculateReward(prevObs, obs, numActions):
 	prevPos = prevObs[16:]
 	actualPos = obs[16:]
 	print("posición Actual: ",actualPos)
-	print('Punto Móvil: ', puntoM)
-	#TODO Verificar que el reward esté bien.
-	reward = (1/distancia(actualPos, puntoM)) - (1/distancia(prevPos,puntoM) )
+	reward = distancia(prevPos,puntoM) - distancia(actualPos, puntoM)
 	stillAliveBonus = 5
 	return reward + stillAliveBonus
 

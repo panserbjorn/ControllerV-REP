@@ -337,4 +337,4 @@ def main(env_name, num_episodes, gamma, lam, kl_targ, batch_size):
 #     main(**vars(args))
 
 
-main("SecondModel", 200, 0.995, 0.98, 0.003, 20)
+main("SecondModel", 20, 0.995, 0.98, 0.003, 10)

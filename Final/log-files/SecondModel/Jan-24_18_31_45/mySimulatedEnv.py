@@ -14,12 +14,9 @@ def puntoMovil(tiempo):
 def calculateReward(prevObs, obs, numActions):
 	time = numActions*0.05
 	puntoM = puntoMovil(time)
-	prevPos = prevObs[16:]
-	actualPos = obs[16:]
-	print("posición Actual: ",actualPos)
-	print('Punto Móvil: ', puntoM)
-	#TODO Verificar que el reward esté bien.
-	reward = (1/distancia(actualPos, puntoM)) - (1/distancia(prevPos,puntoM) )
+	prevPos = prevObs[-1][1]
+	actualPos = obs[-1][1]
+	reward = distancia(prevPos,puntoM) - distancia(actualPos, puntoM)
 	stillAliveBonus = 5
 	return reward + stillAliveBonus
 
@@ -48,7 +45,7 @@ def decimalToOneHot(decimal):
 	return oneHot
 
 def hasFallen(headPosition):
-	return headPosition<0.65
+	return headPosition[0] == 0 and headPosition[1][2]<0.65
 
 '''
 Devuelve los motores del robot
@@ -153,7 +150,11 @@ class myEnv:
 	Devuelve un array con la lista de acciones posibles en base decimal
 	'''
 	def action_space(self):
-		action_s = [0]
+		#Son las 64 configuraciones que pueden tener los motres (son 4 motores y 3 estados [apagado, encendido positivo, encendido negativo], así que es 4^3)
+		#return 4^3
+		action_s = []
+		for i in range(0,81):
+			action_s.append(i)
 		return action_s
 
 
@@ -171,9 +172,7 @@ class myEnv:
 		previousObs = self.observation_space()
 		self.moveRobot(codedAction)
 		obs = self.observation_space()
-		done = hasFallen(obs[18]) or len(self.actions) > myEnv.maxActions
-		# if done:
-		# 	print("Se cayó!", obs[16], " - ", obs[17], " - ", obs[18])	
+		done = hasFallen(obs[-1]) or len(self.actions) > myEnv.maxActions	
 		reward = calculateReward(previousObs, obs, len(self.actions))
 		return (obs, reward, done)
 

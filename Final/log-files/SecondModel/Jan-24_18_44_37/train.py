@@ -218,7 +218,6 @@ def add_gae(trajectories, gamma, lam):
         values = trajectory['values']
         # temporal differences
         print(values)
-        print(rewards)
         tds = rewards - values + np.append(values[1:] * gamma, 0)
         advantages = discount(tds, gamma * lam)
         trajectory['advantages'] = advantages
@@ -337,4 +336,4 @@ def main(env_name, num_episodes, gamma, lam, kl_targ, batch_size):
 #     main(**vars(args))
 
 
-main("SecondModel", 200, 0.995, 0.98, 0.003, 20)
+main("SecondModel", 1, 0.995, 0.98, 0.003, 1)
