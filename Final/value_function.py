@@ -37,8 +37,8 @@ class NNValueFunction(object):
             hid2_size = int(np.sqrt(hid1_size * hid3_size))
             # heuristic to set learning rate based on NN size (tuned on 'Hopper-v1')
             #TODO cambiar el learning rate
-            self.lr = 1e-2 / np.sqrt(hid2_size)  # 1e-3 empirically determined
-            #self.lr = 1e-1 / np.sqrt(hid2_size)  # Primer Intento
+            #self.lr = 1e-2 / np.sqrt(hid2_size)  # 1e-3 empirically determined
+            self.lr = 1e-1 / np.sqrt(hid2_size)  # Primer Intento
             print('Value Params -- h1: {}, h2: {}, h3: {}, lr: {:.3g}'
                   .format(hid1_size, hid2_size, hid3_size, self.lr))
             # 3 hidden layers with tanh activations

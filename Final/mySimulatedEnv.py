@@ -9,7 +9,8 @@ def distancia(puntoA, puntoB):
 	return abs(puntoA[0]-puntoB[0])+ abs(puntoA[2]-puntoB[2])
 
 def puntoMovil(tiempo):
-	return ((tiempo*0.09)-1.5,0.03,0.8)
+	# return ((tiempo*0.09)-1.5,0.03,0.8) # Muy lento
+	return ((tiempo*0.1)-1.0,0.03,0.8) # Este arranca más adelante y además es más rápido
 
 def calculateReward(prevObs, obs, numActions):
 	time = numActions*0.05
@@ -92,7 +93,7 @@ class myEnv:
 	RLMSpeed = 0
 	clientID = -1
 	#1200 acciones está bien, es un minuto
-	maxActions = 1200
+	maxActions = 600
 
 
 	
