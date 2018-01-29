@@ -45,7 +45,7 @@ def decimalToOneHot(decimal):
 		oneHot[2] = 1
 	elif (decimal /3 < 1):
 		oneHot[2] = -1
-	oneHot[3] = decimal%3
+	oneHot[3] = (decimal%3) -1
 	return oneHot
 
 def hasFallen(headPosition):
