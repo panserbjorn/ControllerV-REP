@@ -259,7 +259,7 @@ def foo (portNumb, instructions):
 			#print(secuence)
 			
 			secuenceTimes.append(extraPoints)
-		#Here I collect the data for the whole secuence
+			#Here I collect the data for the whole secuence
 			#filter not valid positions
 			headTrace = list(filter(lambda x: x[0][0] == 0,headTrace))
 			#add to whole run trace info
