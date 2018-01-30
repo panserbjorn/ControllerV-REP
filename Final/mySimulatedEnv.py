@@ -28,7 +28,7 @@ def calculateReward(prevObs, obs, numActions):
 '''
 Transforma una acción de base decimal a oneHot con base 3 para los 4 motores
 '''
-#TODO Hacer genérico para que sirva para cualquier base y cualquier cnatidad de opciones
+#TODO Hacer genérico para que sirva para cualquier base y cualquier cantidad de opciones
 def decimalToOneHot(decimal):
 	oneHot = [0,0,0,0]
 	if (decimal/27 >= 2 ):
@@ -78,9 +78,7 @@ def getPosition(clientID, objectID):
 
 class myEnv:
 	portNumb = 19997
-	#logFileName
 	actions = []
-	#score
 	hasFallen = False
 	LUM = 0
 	LLM = 0
@@ -92,7 +90,8 @@ class myEnv:
 	RUMSpeed = 0
 	RLMSpeed = 0
 	clientID = -1
-	#1200 acciones está bien, es un minuto
+	#1200 es un minuto
+	#600 son 30 segundos
 	maxActions = 600
 
 
@@ -142,7 +141,6 @@ class myEnv:
 	def observation_space(self):
 		#Son las 4 posiciones, más las 4 velocidades de los motores
 		#Más la posición de la cabeza
-		#TODO ver si esto no da problemas por el hecho de que la posición es una terna y las velocidades son números
 		LUMPos = getPosition(self.clientID,self.LUM)
 		LLMPos = getPosition(self.clientID,self.LLM)
 		RUMPos = getPosition(self.clientID,self.RUM)
@@ -161,7 +159,7 @@ class myEnv:
 
 
 	'''
-	Este método recibe ua acción y debería realizarla durante el próximo perído de tiempo de acción
+	Este método recibe una acción y debería realizarla durante el próximo perído de tiempo de acción
 
 	Retorna 
 		- observaciones array dim = 9
@@ -175,9 +173,7 @@ class myEnv:
 		previousObs = self.observation_space()
 		self.moveRobot(codedAction)
 		obs = self.observation_space()
-		done = hasFallen(obs[18]) or len(self.actions) > myEnv.maxActions
-		# if done:
-		# 	print("Se cayó!", obs[16], " - ", obs[17], " - ", obs[18])	
+		done = hasFallen(obs[18]) or len(self.actions) > myEnv.maxActions	
 		reward = calculateReward(previousObs, obs, len(self.actions))
 		return (obs, reward, done)
 
