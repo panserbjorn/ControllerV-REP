@@ -13,14 +13,16 @@ def puntoMovil(tiempo):
 	return ((tiempo*0.1)-1.0,0.03,0.8) # Este arranca más adelante y además es más rápido
 
 def calculateReward(prevObs, obs, numActions):
-	time = numActions*0.05
-	puntoM = puntoMovil(time)
+	#TODO ESTO ESTA MAL!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	# time = numActions*0.05
+	# puntoM = puntoMovil(time)
 	prevPos = prevObs[16:]
 	actualPos = obs[16:]
-	# print("posición Actual: ",actualPos)
-	# print('Punto Móvil: ', puntoM)
-	#TODO Verificar que el reward esté bien.
-	reward = (1/distancia(actualPos, puntoM)) - (1/distancia(prevPos,puntoM) )
+	# # print("posición Actual: ",actualPos)
+	# # print('Punto Móvil: ', puntoM)
+	# #TODO Verificar que el reward esté bien.
+	# reward = (1/distancia(actualPos, puntoM)) - (1/distancia(prevPos,puntoM) )
+	reward = actualPos[0] - prevPos[0]
 	stillAliveBonus = 0.01
 	return reward + stillAliveBonus
 
