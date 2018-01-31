@@ -93,17 +93,23 @@ def run_policy(env, policy, episodes):
     return trajectories
 
 
+def main(folderName):
 
+	# folderName = './log-files/SecondModel/Jan-30_20_38_36'
+	# chkp.print_tensors_in_checkpoint_file("{}/value_function.ckpt".format(folderName), tensor_name='', all_tensors=True)
 
-folderName = './log-files/SecondModel/Jan-30_20_38_36'
-chkp.print_tensors_in_checkpoint_file("{}/value_function.ckpt".format(folderName), tensor_name='', all_tensors=True)
+	env = myEnv()
+	obs_dim = len(env.observation_space())
+	act_dim = len(env.action_space())
+	obs_dim += 1  # add 1 to obs dimension for time step feature (see run_episode())
 
-env = myEnv()
-obs_dim = len(env.observation_space())
-act_dim = len(env.action_space())
-obs_dim += 1  # add 1 to obs dimension for time step feature (see run_episode())
+	policy = Policy(obs_dim, act_dim, 0.003)
+	policy.restore(folderName)
 
-policy = Policy(obs_dim, act_dim, 0.003)
-policy.restore(folderName)
+	trajectories = run_policy(env, policy, episodes=20)
 
-trajectories = run_policy(env, policy, episodes=20)
+if __name__ == "__main__":
+	parser = argparse.ArgumentParser(description='Viewer for custom policy learning')
+	parser.add_argument('folderName', type=str, help='folder of the policy log')
+	args = parser.parse_args()
+	main(**vars(args))
