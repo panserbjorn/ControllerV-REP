@@ -383,23 +383,23 @@ def main(env_name, num_episodes, gamma, lam, kl_targ, batch_size):
     val_func.close_sess(pathFolder)
 
 
-# if __name__ == "__main__":
-#     parser = argparse.ArgumentParser(description=('Train policy on OpenAI Gym environment '
-#                                                   'using Proximal Policy Optimizer'))
-#     parser.add_argument('env_name', type=str, help='OpenAI Gym environment name')
-#     parser.add_argument('-n', '--num_episodes', type=int, help='Number of episodes to run',
-#                         default=1000)
-#     parser.add_argument('-g', '--gamma', type=float, help='Discount factor', default=0.995)
-#     parser.add_argument('-l', '--lam', type=float, help='Lambda for Generalized Advantage Estimation',
-#                         default=0.98)
-#     parser.add_argument('-k', '--kl_targ', type=float, help='D_KL target value',
-#                         default=0.003)
-#     parser.add_argument('-b', '--batch_size', type=int,
-#                         help='Number of episodes per training batch',
-#                         default=20)
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=('Train policy on OpenAI Gym environment '
+                                                  'using Proximal Policy Optimizer'))
+    parser.add_argument('env_name', type=str, help='OpenAI Gym environment name,', default="SecondModel")
+    parser.add_argument('-n', '--num_episodes', type=int, help='Number of episodes to run',
+                        default=1000)
+    parser.add_argument('-g', '--gamma', type=float, help='Discount factor', default=0.995)
+    parser.add_argument('-l', '--lam', type=float, help='Lambda for Generalized Advantage Estimation',
+                        default=0.98)
+    parser.add_argument('-k', '--kl_targ', type=float, help='D_KL target value',
+                        default=0.003)
+    parser.add_argument('-b', '--batch_size', type=int,
+                        help='Number of episodes per training batch',
+                        default=20)
 
-#     args = parser.parse_args()
-#     main(**vars(args))
+    args = parser.parse_args()
+    main(**vars(args))
 
 
-main("SecondModel", 200, 0.995, 0.98, 0.003, 20)
+# main("SecondModel", 200, 0.995, 0.98, 0.003, 20)
