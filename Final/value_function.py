@@ -109,3 +109,6 @@ class NNValueFunction(object):
         """ Close TensorFlow session """
         self.saver.save(self.sess, '{}/value_function.ckpt'.format(pathFolder))
         self.sess.close()
+
+    def restore(self, pathFolder):
+        self.saver.restore(self.sess, '{}/value_function.ckpt'.format(pathFolder))

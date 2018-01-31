@@ -210,3 +210,6 @@ class Policy(object):
         """ Close TensorFlow session """
         self.saver.save(self.sess, '{}/policy.ckpt'.format(pathFolder))
         self.sess.close()
+
+    def restore(self, pathFolder):
+        self.saver.restore(self.sess, '{}/policy.ckpt'.format(pathFolder))
