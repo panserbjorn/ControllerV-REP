@@ -9,21 +9,9 @@ This class interacts with the robot through the simulator api (V-REP)
 '''
 class robotController:
 	LUM, LLM, RUM, RLM = 0,0,0,0
-	LUM_speed, LLM_speed, RUM_speed, RLM_speed = 0,0,0,0
+	LUMSpeed, LLMSpeed, RUMSpeed, RLMSpeed = 0,0,0,0
 	Head = 0
 	clientID = -1
-	movement_options = {
-			1 : Right_contract,
-			2 : Right_stretch,
-			3 : Right_ahead,
-			4 : Right_back,
-			5 : Left_contract,
-			6 : Left_stretch,
-			7 : Left_ahead,
-			8 : Left_back,
-			9 : Left_stop,
-			10 : Right_stop
-	}
 
 	def __init__(self, clientID):
 		self.clientID = clientID
@@ -41,10 +29,6 @@ class robotController:
 		vrep.simxSetJointTargetVelocity(self.clientID, self.LLM, self.LLMSpeed, vrep.simx_opmode_oneshot)
 		vrep.simxSetJointTargetVelocity(self.clientID, self.RUM, self.RUMSpeed, vrep.simx_opmode_oneshot)
 		vrep.simxSetJointTargetVelocity(self.clientID, self.RLM, self.RLMSpeed, vrep.simx_opmode_oneshot)
-
-	def moveRobot(action):
-		#TOOD Acá recibo el movimiento que tengo que realizar y ahí muevo el robot
-		movement_options[action]()
 
 
 	def head_position():
@@ -109,6 +93,22 @@ class robotController:
 		upperSpeed = 0
 		vrep.simxSetJointTargetVelocity(self.clientID, self.RUM, upperSpeed, vrep.simx_opmode_oneshot)
 		vrep.simxSetJointTargetVelocity(self.clientID, self.RLM, lowerSpeed, vrep.simx_opmode_oneshot)
+	#This is necessary for the robot movement	
+	movement_options = {
+			1 : Right_contract,
+			2 : Right_stretch,
+			3 : Right_ahead,
+			4 : Right_back,
+			5 : Left_contract,
+			6 : Left_stretch,
+			7 : Left_ahead,
+			8 : Left_back,
+			9 : Left_stop,
+			10 : Right_stop
+	}
+	def moveRobot(self, action):
+		#TOOD Acá recibo el movimiento que tengo que realizar y ahí muevo el robot
+		self.movement_options[action](self)
 
 def main():
 	#Maing sure no connection is active
@@ -123,22 +123,24 @@ def main():
 		print("Make sure the simulator is up and running on port 19997")
 	else:
 		#Start simulation
-		vrep.simxStartsimulation(clientID, vrep.simx_opmode_oneshot)
-		robotcontroller = robotcontroller(clientID)
-		print("Write 0 to stop simulation or a number between 1 and 10 to move the robot:")
+		vrep.simxStartSimulation(clientID, vrep.simx_opmode_oneshot)
+		robotcontroller = robotController(clientID)
+		print("Write 0 to stop simulation or a number between 1 and 10 to move the robot:  ")
 		#TODO Too long must shorten it
-		# print("1 - Right_contract")
-		# print("2 - Right_stretch")
-		# print("3 - Right_ahead")
-		# print("4 - ")
-		print(movement_options)
+		print("1 - Right_contract")
+		print("2 - Right_stretch")
+		print("3 - Right_ahead")
+		print("4 - ")
+		# print(movement_options)
 		stillRun = True
 		while stillRun:
-			nextAction = input("Write a movement option: ")
+			nextAction = input("Write a movement option:   ")
+			nextAction = int(nextAction)
 			while nextAction:
 				robotcontroller.moveRobot(nextAction)
-				nextAction = input("Write other movement option or 0")
-			continueRuning = input("want to continue traying? y/n")
+				nextAction = input("Write other movement option or 0   ")
+				nextAction = int(nextAction)
+			continueRuning = input("want to continue traying? y/n  ")
 			if continueRuning == "y":
 				stillRun = False
 			else:
@@ -149,3 +151,6 @@ def main():
 		#Finish simulation and connections
 		vrep.simxStopSimulation(clientID, vrep.simx_opmode_blocking)
 		vrep.simxFinish(clientID)
+
+if __name__ == "__main__":
+	main()
