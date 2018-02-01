@@ -130,7 +130,13 @@ def main():
 		print("1 - Right_contract")
 		print("2 - Right_stretch")
 		print("3 - Right_ahead")
-		print("4 - ")
+		print("4 - Right_back")
+		print("5 - Left_contract")
+		print("6 - Left_stretch")
+		print("7 - Left_ahead")
+		print("8 - Left_back")
+		print("9 - Left_stop")
+		print("10 - Right_stop")
 		# print(movement_options)
 		stillRun = True
 		while stillRun:
