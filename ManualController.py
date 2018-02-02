@@ -10,10 +10,8 @@ This class interacts with the robot through the simulator api (V-REP)
 '''
 class robotController:
 
-	# LUM, LLM, RUM, RLM = 0,0,0,0
-	# LUMSpeed, LLMSpeed, RUMSpeed, RLMSpeed = 0,0,0,0
-	# Head = 0
-	# clientID = -1
+	def getPosition(self, objectHandle):
+		return vrep.simxGetObjectPosition(self.clientID, objectHandle, -1, vrep.simx_opmode_oneshot)
 
 	def getObjectHandle(self, objectName):
 		retCode, handle = vrep.simxGetObjectHandle(self.clientID, objectName, vrep.simx_opmode_blocking)
@@ -28,99 +26,20 @@ class robotController:
 		self.motors, self.observables = rc.getRobotConfig()
 		self.movements = rc.getRobotMovements()
 		self.motorsAndHandles = {i : self.getObjectHandle(i) for i in self.motors}
-		# print(self.movements)
-		# LUMRetCode, self.LUM = vrep.simxGetObjectHandle(self.clientID, "LUM", vrep.simx_opmode_blocking)
-		# LLMRetCode, self.LLM = vrep.simxGetObjectHandle(self.clientID, "LLM", vrep.simx_opmode_blocking)
-		# RUMRetCode, self.RUM = vrep.simxGetObjectHandle(self.clientID, "RUM", vrep.simx_opmode_blocking)
-		# RLMRetCode, self.RLM = vrep.simxGetObjectHandle(self.clientID, "RLM", vrep.simx_opmode_blocking)
+		
 		
 		#Recover the handles for other parts of the robot
-		HeadRetCode, self.Head = vrep.simxGetObjectHandle(self.clientID, "Head", vrep.simx_opmode_blocking)
+		self.observablesAndHandles = {i : self.getObjectHandle(i) for i in self.observables}
 
 		#Set Initial Target Velocity of all motors to 0
 		for k, v in self.motorsAndHandles.items():
 			self.setVelocity(v,0)
-		# vrep.simxSetJointTargetVelocity(self.clientID, self.LUM, self.LUMSpeed, vrep.simx_opmode_oneshot)
-		# vrep.simxSetJointTargetVelocity(self.clientID, self.LLM, self.LLMSpeed, vrep.simx_opmode_oneshot)
-		# vrep.simxSetJointTargetVelocity(self.clientID, self.RUM, self.RUMSpeed, vrep.simx_opmode_oneshot)
-		# vrep.simxSetJointTargetVelocity(self.clientID, self.RLM, self.RLMSpeed, vrep.simx_opmode_oneshot)
 
 
-	def head_position():
-		return vrep.simxGetObjectPosition(self.clientID, self.Head, -1, vrep.simx_opmode_oneshot)
+	def observablePositions(self):
+		return {k : self.getPosition(v) for k,v in self.observablesAndHandles.items()}
 
-	# def Right_contract(self):
-	# 	lowerSpeed = -1
-	# 	upperSpeed = 1
-	# 	vrep.simxSetJointTargetVelocity(self.clientID, self.RUM, upperSpeed, vrep.simx_opmode_oneshot)
-	# 	vrep.simxSetJointTargetVelocity(self.clientID, self.RLM, lowerSpeed, vrep.simx_opmode_oneshot)
-
-	# def Right_stretch(self):
-	# 	lowerSpeed = 1
-	# 	upperSpeed = -1
-	# 	vrep.simxSetJointTargetVelocity(self.clientID, self.RUM, upperSpeed, vrep.simx_opmode_oneshot)
-	# 	vrep.simxSetJointTargetVelocity(self.clientID, self.RLM, lowerSpeed, vrep.simx_opmode_oneshot)
-
-	# def Right_ahead(self):
-	# 	lowerSpeed = 0
-	# 	upperSpeed = 1
-	# 	vrep.simxSetJointTargetVelocity(self.clientID, self.RUM, upperSpeed, vrep.simx_opmode_oneshot)
-	# 	vrep.simxSetJointTargetVelocity(self.clientID, self.RLM, lowerSpeed, vrep.simx_opmode_oneshot)
-
-	# def Right_back(self):
-	# 	lowerSpeed = 0
-	# 	upperSpeed = -1
-	# 	vrep.simxSetJointTargetVelocity(self.clientID, self.RUM, upperSpeed, vrep.simx_opmode_oneshot)
-	# 	vrep.simxSetJointTargetVelocity(self.clientID, self.RLM, lowerSpeed, vrep.simx_opmode_oneshot)
-
-	# def Left_contract(self):
-	# 	lowerSpeed = -1
-	# 	upperSpeed = 1
-	# 	vrep.simxSetJointTargetVelocity(self.clientID, self.LUM, upperSpeed, vrep.simx_opmode_oneshot)
-	# 	vrep.simxSetJointTargetVelocity(self.clientID, self.LLM, lowerSpeed, vrep.simx_opmode_oneshot)
-
-	# def Left_stretch(self):
-	# 	lowerSpeed = 1
-	# 	upperSpeed = -1
-	# 	vrep.simxSetJointTargetVelocity(self.clientID, self.LUM, upperSpeed, vrep.simx_opmode_oneshot)
-	# 	vrep.simxSetJointTargetVelocity(self.clientID, self.LLM, lowerSpeed, vrep.simx_opmode_oneshot)
-
-	# def Left_ahead(self):
-	# 	lowerSpeed = 0
-	# 	upperSpeed = 1
-	# 	vrep.simxSetJointTargetVelocity(self.clientID, self.LUM, upperSpeed, vrep.simx_opmode_oneshot)
-	# 	vrep.simxSetJointTargetVelocity(self.clientID, self.LLM, lowerSpeed, vrep.simx_opmode_oneshot)
-
-	# def Left_back(self):
-	# 	lowerSpeed = 0
-	# 	upperSpeed = -1
-	# 	vrep.simxSetJointTargetVelocity(self.clientID, self.LUM, upperSpeed, vrep.simx_opmode_oneshot)
-	# 	vrep.simxSetJointTargetVelocity(self.clientID, self.LLM, lowerSpeed, vrep.simx_opmode_oneshot)
-
-	# def Left_stop(self):
-	# 	lowerSpeed = 0
-	# 	upperSpeed = 0
-	# 	vrep.simxSetJointTargetVelocity(self.clientID, self.LUM, upperSpeed, vrep.simx_opmode_oneshot)
-	# 	vrep.simxSetJointTargetVelocity(self.clientID, self.LLM, lowerSpeed, vrep.simx_opmode_oneshot)
-
-	# def Right_stop(self):
-	# 	lowerSpeed = 0
-	# 	upperSpeed = 0
-	# 	vrep.simxSetJointTargetVelocity(self.clientID, self.RUM, upperSpeed, vrep.simx_opmode_oneshot)
-	# 	vrep.simxSetJointTargetVelocity(self.clientID, self.RLM, lowerSpeed, vrep.simx_opmode_oneshot)
-	# #This is necessary for the robot movement	
-	# movement_options = {
-	# 		1 : Right_contract,
-	# 		2 : Right_stretch,
-	# 		3 : Right_ahead,
-	# 		4 : Right_back,
-	# 		5 : Left_contract,
-	# 		6 : Left_stretch,
-	# 		7 : Left_ahead,
-	# 		8 : Left_back,
-	# 		9 : Left_stop,
-	# 		10 : Right_stop
-	# }
+	
 	def moveRobot(self, action):
 		for i in self.movements[action-1]['velocities']:
 			self.setVelocity(self.motorsAndHandles[i[0]],i[1])
