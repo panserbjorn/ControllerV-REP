@@ -4,6 +4,18 @@
 import vrep
 import time 
 import robotConfigDec as rc
+from ManualCtrSnoop import Snoop 
+import functools
+
+def recordSecuences (newSecuences, fileName):
+	f = open(fileName, "w")
+	halfParsed = list(map( lambda sec: list(map(lambda instr: str(instr[0]) + '-' + str(round(instr[1])),sec)),newSecuences))
+	fullParsed = list(map(lambda hsec:functools.reduce(lambda b,x:b + ',' + x,hsec),halfParsed))
+	for i in fullParsed:
+		f.write(i)
+		f.write('\n')
+	f.close()
+
 
 '''
 This class interacts with the robot through the simulator api (V-REP)
@@ -62,15 +74,23 @@ def main():
 		print("Write 0 to stop simulation or a number between 1 and {} to move the robot:  ".format(len(robotcontroller.movements)))
 		print([(i+1,v['name']) for i,v in enumerate(robotcontroller.movements)])
 		stillRun = True
+		snoop = Snoop()
+		savedSecuences = []
 		while stillRun:
 			nextAction = input("Write a movement option:   ")
 			nextAction = int(nextAction)
 			while nextAction:
+				snoop.next_action(nextAction)
 				robotcontroller.moveRobot(nextAction)
 				nextAction = input("Write other movement option or 0   ")
 				nextAction = int(nextAction)
-			continueRuning = input("want to continue traying? y/n  ")
-			if continueRuning == "y":
+			secuence = snoop.end()
+			# print(secuence)
+			saveRun = input("Do you want to save this run? y/n ")
+			if saveRun == "y":
+				savedSecuences.append(secuence)
+			continueRuning = input("Want to continue traying? y/n  ")
+			if continueRuning == "n":
 				stillRun = False
 			else:
 				#Restart Simulation
@@ -80,6 +100,8 @@ def main():
 		#Finish simulation and connections
 		vrep.simxStopSimulation(clientID, vrep.simx_opmode_blocking)
 		vrep.simxFinish(clientID)
+		#Save Secuences into file
+		recordSecuences(savedSecuences, "savedSecuences.txt")
 
 if __name__ == "__main__":
 	main()
