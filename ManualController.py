@@ -7,6 +7,7 @@ import robotConfigDec as rc
 from ManualCtrSnoop import Snoop 
 import functools
 
+#TODO Cambiar esté metodo para otro lugar ( no debería ser responsabilidad de este módulo )
 def recordSecuences (newSecuences, fileName):
 	f = open(fileName, "w")
 	halfParsed = list(map( lambda sec: list(map(lambda instr: str(instr[0]) + '-' + str(round(instr[1])),sec)),newSecuences))
