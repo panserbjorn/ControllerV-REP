@@ -49,6 +49,8 @@ class robotController:
 		for k, v in self.motorsAndHandles.items():
 			self.setVelocity(v,0)
 
+	def isValid(self, action):
+		return action < len(self.movements)
 
 	def observablePositions(self):
 		return {k : self.getPosition(v) for k,v in self.observablesAndHandles.items()}
@@ -82,8 +84,9 @@ def main():
 			nextAction = input("Write a movement option:   ")
 			nextAction = int(nextAction)
 			while nextAction:
-				snoop.next_action(nextAction)
-				robotcontroller.moveRobot(nextAction)
+				if robotcontroller.isValid(nextAction):
+					snoop.next_action(nextAction)
+					robotcontroller.moveRobot(nextAction)
 				nextAction = input("Write other movement option or 0   ")
 				nextAction = int(nextAction)
 			secuence = snoop.end()

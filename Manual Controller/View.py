@@ -53,7 +53,6 @@ def main(fileName):
 				robotcontroller.moveRobot(instruction[0])
 				for i in range(instruction[1]):
 					vrep.simxSynchronousTrigger(clientID)
-					time.sleep(0.03)
 
 			#Stop_Start_Simulation
 			vrep.simxStopSimulation(clientID, vrep.simx_opmode_blocking)
