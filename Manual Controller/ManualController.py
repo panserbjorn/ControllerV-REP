@@ -6,57 +6,10 @@ import time
 import robotConfigDec as rc
 from ManualCtrSnoop import Snoop 
 import functools
-
-def recordSecuences (newSecuences, fileName):
-	f = open(fileName, "w")
-	halfParsed = list(map( lambda sec: list(map(lambda instr: str(instr[0]) + '-' + str(round(instr[1])),sec)),newSecuences))
-	fullParsed = list(map(lambda hsec:functools.reduce(lambda b,x:b + ',' + x,hsec),halfParsed))
-	for i in fullParsed:
-		f.write(i)
-		f.write('\n')
-	f.close()
+from RobotController import robotController
+import SecuenceRecorder as sr
 
 
-'''
-This class interacts with the robot through the simulator api (V-REP)
-'''
-class robotController:
-
-	def getPosition(self, objectHandle):
-		return vrep.simxGetObjectPosition(self.clientID, objectHandle, -1, vrep.simx_opmode_oneshot)
-
-	def getObjectHandle(self, objectName):
-		retCode, handle = vrep.simxGetObjectHandle(self.clientID, objectName, vrep.simx_opmode_blocking)
-		return handle
-
-	def setVelocity(self, handle, velocity):
-		vrep.simxSetJointTargetVelocity(self.clientID, handle, velocity, vrep.simx_opmode_oneshot)
-
-	def __init__(self, clientID):
-		self.clientID = clientID
-		#Recover the handles for the motors
-		self.motors, self.observables = rc.getRobotConfig()
-		self.movements = rc.getRobotMovements()
-		self.motorsAndHandles = {i : self.getObjectHandle(i) for i in self.motors}
-		
-		
-		#Recover the handles for other parts of the robot
-		self.observablesAndHandles = {i : self.getObjectHandle(i) for i in self.observables}
-
-		#Set Initial Target Velocity of all motors to 0
-		for k, v in self.motorsAndHandles.items():
-			self.setVelocity(v,0)
-
-	def isValid(self, action):
-		return action <= len(self.movements)
-
-	def observablePositions(self):
-		return {k : self.getPosition(v) for k,v in self.observablesAndHandles.items()}
-
-	
-	def moveRobot(self, action):
-		for i in self.movements[action-1]['velocities']:
-			self.setVelocity(self.motorsAndHandles[i[0]],i[1])
 
 def main():
 	#Maing sure no connection is active
@@ -107,7 +60,7 @@ def main():
 		vrep.simxStopSimulation(clientID, vrep.simx_opmode_blocking)
 		vrep.simxFinish(clientID)
 		#Save Secuences into file
-		recordSecuences(savedSecuences, "savedSecuences.txt")
+		sr.recordSecuences(savedSecuences, "savedSecuences.txt")
 
 if __name__ == "__main__":
 	main()
