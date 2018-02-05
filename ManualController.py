@@ -21,6 +21,7 @@ def recordSecuences (newSecuences, fileName):
 '''
 This class interacts with the robot through the simulator api (V-REP)
 '''
+#TODO Mover el controlador del robot a un archivo aparte para que todas las clases lo puedan usar
 class robotController:
 
 	def getPosition(self, objectHandle):
