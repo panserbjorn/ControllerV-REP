@@ -24,8 +24,8 @@ def init_env(env_name):
 		Number of action dimensions (int)
 	'''
 	env = myEnv()
-	obs_dim = len(env.observation_space())
-	act_dim = len(env.action_space())
+	obs_dim = env.observation_space().shape
+	act_dim = env.action_space().shape
 
 	return env, obs_dim, act_dim
 

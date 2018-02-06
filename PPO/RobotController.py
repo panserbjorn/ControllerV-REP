@@ -46,5 +46,5 @@ class robotController:
 			self.setVelocity(self.motorsAndHandles[i[0]],i[1])
 
 	def changeMotorsVelocities(self,velocityVect):
-		for i in range(len(self.motors)):
-			self.setVelocity(self.motors[i], velocityVect[i])
+		for i in range(len(self.motorsAndHandles.values())):
+			self.setVelocity(list(self.motorsAndHandles.values())[i], velocityVect[i])

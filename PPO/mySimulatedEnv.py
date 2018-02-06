@@ -2,8 +2,8 @@ import vrep
 import time
 import math 
 import numpy as np
-import secuenceGenerator as sg
 from RobotController import robotController
+import yaml as y
 
 
 def distance(pointA, pointB):
@@ -39,11 +39,11 @@ def decimalToOneHot(decimal,exp):
 		oneHot.append(0)
 	counter = exp
 	while counter > 1:
-		if (decimal/3^(counter-1) >= 2):
+		if (decimal/(3**(counter-1)) >= 2):
 			oneHot[exp-counter] = 1
-		elif (decimal/3^(counter-1) < 1):
+		elif (decimal/(3**(counter-1)) < 1):
 			oneHot[exp-counter] = -1
-		decimal = decimal % 3^(counter-1)
+		decimal = decimal % (3**(counter-1))
 		counter-=1
 	oneHot[exp-counter] = (decimal%3) -1
 	# if (decimal/27 >= 2 ):
@@ -64,7 +64,7 @@ def decimalToOneHot(decimal,exp):
 	return oneHot
 
 def hasFallen(obs):
-	return obs['Head'][0]<0.65
+	return obs['Head'][1][2]<0.65 and obs['Head'][0] == 0
 
 '''
 Devuelve los motores del robot
@@ -109,7 +109,7 @@ class myEnv:
 	# LLMSpeed = 0
 	# RUMSpeed = 0
 	# RLMSpeed = 0
-	# clientID = -1
+	clientID = -1
 	# #1200 es un minuto
 	# #600 son 30 segundos
 	# maxActions = 600
@@ -129,7 +129,7 @@ class myEnv:
 		self.clientID = vrep.simxStart('127.0.0.1', self.portNumb, True, True, 5000, 5)
 		if self.clientID != -1 :
 			print ("Connection to the simulator has been established")
-			self.robotController = robotController(clientID)
+			self.robotController = robotController(self.clientID)
 
 			# LUM,LLM,RUM,RLM,head = recoverRobotParts(self.clientID)
 			# self.LUM  = LUM
@@ -166,7 +166,7 @@ class myEnv:
 		#Son las 4 posiciones, más las 4 velocidades de los motores
 		#Más la posición de la cabeza
 		observations = self.robotController.observablePositions()
-		return [v[1] for k,v in observations.items()]
+		return sum([v[1] for k,v in observations.items()],[])
 		# LUMPos = getPosition(self.clientID,self.LUM)
 		# LLMPos = getPosition(self.clientID,self.LLM)
 		# RUMPos = getPosition(self.clientID,self.RUM)
@@ -179,7 +179,10 @@ class myEnv:
 	'''
 	def action_space(self):
 		action_s = []
-		num_actions = 3^len(self.robotController.motors)
+		numMotors = len(self.robotController.motors)
+		print(numMotors)
+		num_actions = 3**numMotors
+		print(num_actions)
 		for i in range(num_actions):
 			action_s.append(i)
 		return action_s
@@ -201,10 +204,10 @@ class myEnv:
 		self.moveRobot(codedAction)
 		# self.moveRobot(codedAction)
 		obs = self.robotController.observablePositions()
-		done = hasFallen(obs) or len(self.actions) > self.maxActions	
+		done = hasFallen(obs) or len(self.actions) > self.max_actions	
 		reward = calculateReward(previousObs, obs, len(self.actions))
 		# Transform dictionary to list
-		obsList = [v for k,v in obs.items()]
+		obsList = sum([v[1] for k,v in obs.items()],[])
 		return (obsList, reward, done)
 
 		
@@ -221,7 +224,7 @@ class myEnv:
 		vrep.simxStartSimulation(self.clientID, vrep.simx_opmode_blocking)
 		self.robotController.resetRobot()
 		obs = self.robotController.observablePositions()
-		obsList = [v for k,v in obs.items()]
+		obsList = sum([v[1] for k,v in obs.items()],[])
 		return obsList
 
 	
@@ -229,7 +232,7 @@ class myEnv:
 		vrep.simxSynchronousTrigger(self.clientID)
 
 	def moveRobot(self, codedAction):
-		self.robotController.changeMotorVelocities(codedAction)
+		self.robotController.changeMotorsVelocities(codedAction)
 		# setVelocity(self.clientID, self.LUM, codedAction[0])
 		# setVelocity(self.clientID, self.LLM, codedAction[1])
 		# setVelocity(self.clientID, self.RUM, codedAction[2])
