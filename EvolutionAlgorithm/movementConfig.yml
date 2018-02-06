@@ -1,0 +1,15 @@
+#Movement Configuration
+
+#List of movements to be executed manually
+#Reminder: Movements will be numbered acording to order in this file
+movements : 
+  - {name : Right_contract, velocities : [[RUM, 1], [RLM, -1]]}
+  - {name : Right_stretch, velocities : [[RUM, -1], [RLM, 1]]}
+  - {name : Right_ahead, velocities : [[RUM, 1], [RLM, 0]]}
+  - {name : Right_back, velocities : [[RUM, -1], [RLM, 0]]}
+  - {name : Left_contract, velocities : [[LUM, 1], [LLM, -1]]}
+  - {name : Left_stretch, velocities : [[LUM, -1], [LLM, 1]]}
+  - {name : Left_ahead, velocities : [[LUM, 1], [LLM, 0]]}
+  - {name : Left_back, velocities : [[LUM, -1], [LLM, 0]]}
+  - {name : Left_stop, velocities : [[LUM, 0], [LLM, 0]]}
+  - {name : Right_stop, velocities : [[RUM, 0], [RLM, 0]]}

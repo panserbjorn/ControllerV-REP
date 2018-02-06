@@ -1,0 +1,13 @@
+#Robot configuration file 
+
+motors : # Motors to be interacted with 
+  - LUM
+  - LLM
+  - RUM
+  - RLM 
+observables : # Object's positions to be monitored
+  - Head
+  - LUM
+  - LLm
+  - RUM
+  - RLM 

@@ -83,10 +83,6 @@ def run_optimum(env, policy, scaler):
     offset[-1] = 0.0  # don't offset time step feature
     i = 0
     while (not done) and i < len(optimal):
-        #No se va a animar nunca en mi caso
-        # if animate:
-        #     env.render()
-        # print(obs)
         obs = np.array(obs, dtype=np.float64).reshape((1, -1))
         obs = np.append(obs, [[step]], axis=1)  # add time step feature
         unscaled_obs.append(obs)
