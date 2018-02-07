@@ -5,6 +5,8 @@ import yaml as y
 import ruamel.yaml
 import time 
 import sys
+import numpy as np
+import functools
 
 class BestAcumulator:
 	def __init__(self):
@@ -20,7 +22,9 @@ class BestAcumulator:
 	def save(self, pathFolder):
 		# print(self.sequences)
 		stream = open("{}/bestSecs.yml".format(pathFolder), 'w')
-		# self.sequences = [{'actions': list(i['actions']), 'reward':float(i['reward'])} for i in self.sequences]
+		print(type(self.sequences[0]['actions']))
+		print(type(self.sequences[0]['reward']))
+		self.sequences = [{'actions': list(map(lambda x: np.asscalar(x), i['actions'])), 'reward':np.asscalar(i['reward'])} for i in self.sequences]
 		# data = dict(Best=self.sequences)
 		# yaml_str = ruamel.yaml.dump(data, stream, default_flow_style=False)
 		# ruamel.yaml.round_trip_dump(data, sys.stdout)
