@@ -11,6 +11,7 @@ from datetime import datetime
 import scipy.signal
 import argparse
 from mySimulatedEnv import myEnv
+from bestAcumulator import BestAcumulator
 
 def init_env(env_name):
 	'''
@@ -72,7 +73,7 @@ def run_episode(env, policy, scaler):
 		step += 0.05
 	return (np.concatenate(observes), np.concatenate(actions),
 			np.array(rewards, dtype=np.float64), np.concatenate(unscaled_obs))
-def run_policy(env, policy, scaler, logger, numEpisodes):
+def run_policy(env, policy, scaler, logger, numEpisodes, acumulator):
 	'''
 	Run policy and collect data for minimum of min_step and min_episodes
 
@@ -93,13 +94,15 @@ def run_policy(env, policy, scaler, logger, numEpisodes):
 	trajectories = []
 	for e in range(numEpisodes):
 		observes, actions, rewards, unscaled_obs = run_episode(env, policy, scaler)
-		print([np.argmax(t) for t in actions])
+		# print([np.argmax(t) for t in actions])
 		total_steps += observes.shape[0]
 		trajectory = {	'observes': observes,
 						'actions': actions,
 						'rewards': rewards, 
 						'unscaled_obs': unscaled_obs
 						}
+		acumulate = {'actions': [np.argmax(r) for r in actions], 'reward': sum(rewards)}
+		acumulator.next_actions(acumulate)
 		trajectories.append(trajectory)
 	unscaled = np.concatenate([t['unscaled_obs'] for t in trajectories])
 	scaler.update(unscaled) # update running statistics for scaling observations
@@ -236,14 +239,14 @@ def main(env_name, num_episodes, gamma, lam, kl_targ, batch_size):
 	scaler = Scaler(obs_dim)
 	val_func = NNValueFunction(obs_dim)
 	policy = Policy(obs_dim, act_dim, kl_targ)
-
+	acumulator = BestAcumulator()
 	#TODO agregar la parte de sampling una vez que todo ande
 
 	# run a few episodes of untrained policy to initialize scaler:
-	run_policy(env, policy, scaler, logger, numEpisodes=5)
+	run_policy(env, policy, scaler, logger, 5, acumulator)
 	episode = 0
 	while episode < num_episodes:
-		trajectories = run_policy(env, policy, scaler, logger, numEpisodes=batch_size)
+		trajectories = run_policy(env, policy, scaler, logger, batch_size, acumulator)
 		episode += len(trajectories)
 		add_value(trajectories, val_func) # add estimated values to episodes
 		add_disc_sum_rew(trajectories, gamma) # calculate discounted sum of Rs
@@ -255,6 +258,7 @@ def main(env_name, num_episodes, gamma, lam, kl_targ, batch_size):
 		policy.update(observes, actions, advantages, logger)  # update policy
 		val_func.fit(observes, disc_sum_rew, logger)  # update value function
 		logger.write(display=True)  # write logger results to file and stdout
+	acumulator.save(pathFolder)
 	logger.close()
 	policy.close_sess(pathFolder)
 	val_func.close_sess(pathFolder)
