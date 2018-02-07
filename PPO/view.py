@@ -11,6 +11,8 @@ import argparse
 import signal
 from mySimulatedEnv import myEnv
 from tensorflow.python.tools import inspect_checkpoint as chkp
+import yaml as y
+import time
 
 def run_episode(env, policy, scaler):
 	
@@ -59,25 +61,42 @@ def run_policy(env, policy, scaler, episodes):
 
 	return trajectories
 
+def recoverSequences(folderName):
+	with open('{}/bestSecs.yml'.format(folderName), 'r') as ymlFile:
+		bestSecs = y.load(ymlFile)
+	return bestSecs
 
-def main(folderName):
+def runSeq(actions, env):
+	env.reset()
+	for action in actions:
+		env.stepWithOutArgMax(action)
+		# time.sleep(0.2)
+
+
+def main(folderName, bestMode):
 
 	# folderName = './log-files/SecondModel/Jan-30_20_38_36'
 	# chkp.print_tensors_in_checkpoint_file("{}/value_function.ckpt".format(folderName), tensor_name='', all_tensors=True)
 
 	env = myEnv()
-	obs_dim = len(env.observation_space())
-	act_dim = len(env.action_space())
-	obs_dim += 1  # add 1 to obs dimension for time step feature (see run_episode())
-	scaler = Scaler(obs_dim)
+	if not bestMode:
+		obs_dim = len(env.observation_space())
+		act_dim = len(env.action_space())
+		obs_dim += 1  # add 1 to obs dimension for time step feature (see run_episode())
+		scaler = Scaler(obs_dim)
 
-	policy = Policy(obs_dim, act_dim, 0.003)
-	policy.restore(folderName)
+		policy = Policy(obs_dim, act_dim, 0.003)
+		policy.restore(folderName)
 
-	trajectories = run_policy(env, policy, scaler, episodes=20)
+		trajectories = run_policy(env, policy, scaler, episodes=20)
+	else:
+		sequences = recoverSequences(folderName)
+		for sequence in sequences:
+			runSeq(sequence['actions'], env)
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(description='Viewer for custom policy learning')
 	parser.add_argument('folderName', type=str, help='folder of the policy log')
+	parser.add_argument('-b', '--bestMode' , help='When used it will display best sequences captured', action='store_true', default=False)
 	args = parser.parse_args()
 	main(**vars(args))

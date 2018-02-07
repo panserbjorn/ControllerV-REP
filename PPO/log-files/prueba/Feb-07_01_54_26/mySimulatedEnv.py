@@ -210,8 +210,6 @@ class myEnv:
 		obsList = sum([v[1] for k,v in obs.items()],[])
 		return (obsList, reward, done)
 
-		
-
 	'''
 	Este método reinicia la simulación
 	'''

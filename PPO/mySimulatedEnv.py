@@ -210,7 +210,18 @@ class myEnv:
 		obsList = sum([v[1] for k,v in obs.items()],[])
 		return (obsList, reward, done)
 
-		
+	def stepWithOutArgMax(self, action):
+		codedAction = decimalToOneHot(action,len(self.robotController.motors))
+		self.actions.append(action)
+		previousObs = self.robotController.observablePositions()
+		self.moveRobot(codedAction)
+		# self.moveRobot(codedAction)
+		obs = self.robotController.observablePositions()
+		done = hasFallen(obs) or len(self.actions) > self.max_actions	
+		reward = calculateReward(previousObs, obs, len(self.actions))
+		# Transform dictionary to list
+		obsList = sum([v[1] for k,v in obs.items()],[])
+		return (obsList, reward, done)
 
 	'''
 	Este método reinicia la simulación
