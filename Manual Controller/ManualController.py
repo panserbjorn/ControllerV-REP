@@ -30,7 +30,7 @@ def main():
 		print([(i+1,v['name']) for i,v in enumerate(robotcontroller.movements)])
 		stillRun = True
 		snoop = Snoop()
-		savedSecuences = []
+		savedSequences = []
 		while stillRun:
 			nextAction = input("Write a movement option:   ")
 			try:
@@ -47,7 +47,7 @@ def main():
 			# print(secuence)
 			saveRun = input("Do you want to save this run? y/n ")
 			if saveRun == "y":
-				savedSecuences.append(secuence)
+				savedSequences.append(secuence)
 			continueRuning = input("Want to continue traying? y/n  ")
 			if continueRuning == "n":
 				stillRun = False
@@ -60,7 +60,7 @@ def main():
 		vrep.simxStopSimulation(clientID, vrep.simx_opmode_blocking)
 		vrep.simxFinish(clientID)
 		#Save Secuences into file
-		sr.recordSecuences(savedSecuences, "savedSecuences.txt")
+		sr.recordSecuences(savedSequences, "savedSequences.txt")
 
 if __name__ == "__main__":
 	main()
