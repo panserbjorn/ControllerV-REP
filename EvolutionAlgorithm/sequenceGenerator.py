@@ -10,24 +10,24 @@ los repetidos para poder luego guardar en el archivo esas secuencias.
 import numpy as np
 import functools
 
-def generateNewSec(secuence, numberOfSec):
-	newSecuences = []
-	while len(newSecuences) < numberOfSec:
-		nextSec = []
-		for instruct in secuence:
+def generateNewSeq(sequence, numberOfSeq):
+	newSequences = []
+	while len(newSequences) < numberOfSeq:
+		nextSeq = []
+		for instruct in sequence:
 			movement = instruct[0]
 			time = instruct[1]
 			modification = np.random.randint(-5,5)
-			nextSec.append((movement,abs(time+modification)))
+			nextSeq.append((movement,abs(time+modification)))
 		# TODO should I not consider repeated sequences???
-		if nextSec not in newSecuences:
-			newSecuences.append(nextSec)
-	return newSecuences
+		if nextSeq not in newSequences:
+			newSequences.append(nextSeq)
+	return newSequences
 
 
-def recordSecuences (newSecuences, fileName):
+def recordSequences (newSequences, fileName):
 	f = open(fileName, "w")
-	halfParsed = list(map( lambda sec: list(map(lambda instr: str(instr[0]) + '-' + str(instr[1]),sec)),newSecuences))
+	halfParsed = list(map( lambda sec: list(map(lambda instr: str(instr[0]) + '-' + str(instr[1]),sec)),newSequences))
 	fullParsed = list(map(lambda hsec:functools.reduce(lambda b,x:b + ',' + x,hsec),halfParsed))
 	for i in fullParsed:
 		f.write(i)

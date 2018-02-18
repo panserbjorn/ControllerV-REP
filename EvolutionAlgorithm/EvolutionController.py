@@ -8,9 +8,9 @@ import functools
 import numpy as np
 import math
 from multiprocessing.pool import ThreadPool
-import secuenceGenerator as sg
+import sequenceGenerator as sg
 import argparse
-import SecuenceRecorder as sr
+import SequenceRecorder as sr
 from EvolutionModel import EvolutionModel
 import yaml as y
 
@@ -27,14 +27,14 @@ def recoverPorts():
 		portConfig = y.load(ymlFile)
 	return portConfig['ports']
 
-def main(sec_file, best_file, numb_threads, exploration_factor, num_gen):
+def main(seq_file, best_file, numb_threads, exploration_factor, num_gen):
 	#Maing sure no connection is active
 	vrep.simxFinish(-1)
 	#Recover port numbers
 	ports = recoverPorts()
 	pool = ThreadPool(numb_threads)
 	for gen in range(num_gen):
-		instructions = sr.readInstructions(sec_file)
+		instructions = sr.readInstructions(seq_file)
 		instructionChunks = list(chunks(instructions, math.floor(len(instructions)/numb_threads)))
 		runInfo = []
 		for i in range(numb_threads):
@@ -47,13 +47,13 @@ def main(sec_file, best_file, numb_threads, exploration_factor, num_gen):
 			runInfo2 += i
 		#Sort by score
 		sortedByScore = sorted(runInfo2, key=lambda x:x['Score'],reverse=True)
-		bestSecuences = [r['instructions'] for r in sortedByScore[:10]]
-		newSecuences = [sg.generateNewSec(sec, exploration_factor) for sec in bestSecuences]
-		newSecuences = sum(newSecuences,[])
-		sr.recordSecuences(bestSecuences + newSecuences, sec_file)
-		sr.recordSecuences(bestSecuences, best_file)
+		bestSequences = [r['instructions'] for r in sortedByScore[:10]]
+		newSequences = [sg.generateNewSeq(seq, exploration_factor) for seq in bestSequences]
+		newSequences = sum(newSequences,[])
+		sr.recordSequences(bestSequences + newSequences, seq_file)
+		sr.recordSequences(bestSequences, best_file)
 
-def runModel(portNumber, secuenceList):
+def runModel(portNumber, sequenceList):
 	#Establish connection
 	clientID = vrep.simxStart('127.0.0.1', portNumber, True, True, 5000, 5)
 	#Verify connection
@@ -71,10 +71,10 @@ def runModel(portNumber, secuenceList):
 		#Start simulation
 		vrep.simxStartSimulation(clientID, vrep.simx_opmode_oneshot)
 		runInfo = []
-		for secuence in secuenceList:
+		for sequence in sequenceList:
 			runtime = 0
 			observationTrace = []
-			for instruction in secuence:
+			for instruction in sequence:
 				robotcontroller.moveRobot(instruction[0])
 
 				#This is what makes the simulation Synchronous
@@ -96,7 +96,7 @@ def runModel(portNumber, secuenceList):
 					observationTrace.append({'Observation': observations, 'runtime' : runtime})
 					done = evolutionModel.isDone(observations)
 
-			runInfo.append({'instructions' : secuence, 'observations' : observationTrace, 'Score' : evolutionModel.getScore(observationTrace)})
+			runInfo.append({'instructions' : sequence, 'observations' : observationTrace, 'Score' : evolutionModel.getScore(observationTrace)})
 			robotcontroller.resetRobot()
 			#Stop_Start_Simulation
 			vrep.simxStopSimulation(clientID, vrep.simx_opmode_blocking)
@@ -115,10 +115,10 @@ def runModel(portNumber, secuenceList):
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(description='Evolution Model for robots')
-	parser.add_argument( '-sf','--sec_file', type=str, help='File Name where secuences are stored', default='secuenceFile.txt')
-	parser.add_argument('-bf', '--best_file', type=str, help='File Name where bes secuences are stored', default='bestSecuences.txt')
+	parser.add_argument( '-sf','--seq_file', type=str, help='File Name where sequences are stored', default='sequenceFile.txt')
+	parser.add_argument('-bf', '--best_file', type=str, help='File Name where bes sequences are stored', default='bestSequences.txt')
 	parser.add_argument('-th', '--numb_threads', type=int, help='Number of threads to be run', default=4)
-	parser.add_argument('-ef', '--exploration_factor', type=int, help='How many new secuences for every old secuence', default=10)
+	parser.add_argument('-ef', '--exploration_factor', type=int, help='How many new sequences for every old sequence', default=10)
 	parser.add_argument('-g', '--num_gen', type=int, help='Number of generations to be run', default=50)
 	args = parser.parse_args()
 	main(**vars(args))
