@@ -9,7 +9,7 @@
 // In above strings, @ can be any number starting with 1. If more than one server service is required, then numbers need to be consecutive and starting with 1
 
 // Let's start a continuous remote API server service on port 19997:
-//Cambiar línea para poder abrir instancias que escuchen en puertos distintos. :-P
+// Change this line before start up to run in different ports :-P
 //portIndex1_port             = 19997
 //portIndex1_port             = 19990
 //portIndex1_port             = 19991

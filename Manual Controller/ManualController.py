@@ -15,6 +15,7 @@ def main():
 	#Maing sure no connection is active
 	vrep.simxFinish(-1)
 	#Default Port Numeber
+	#TODO cambiar esto para que se lea de un archivo de configuración
 	portNumb = 19997
 	#Establish connection
 	clientID = vrep.simxStart('127.0.0.1', portNumb, True, True, 5000, 5)
@@ -24,6 +25,7 @@ def main():
 		print("Make sure the simulator is up and running on port 19997")
 	else:
 		#Start simulation
+		#TODO verificar si es más conveniente iniciar la simulación antes o después de recuperar la configuración del robot
 		vrep.simxStartSimulation(clientID, vrep.simx_opmode_oneshot)
 		robotcontroller = robotController(clientID)
 		print("Write 0 to stop simulation or a number between 1 and {} to move the robot:  ".format(len(robotcontroller.movements)))

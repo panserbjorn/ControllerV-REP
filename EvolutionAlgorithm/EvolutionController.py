@@ -117,7 +117,7 @@ if __name__ == "__main__":
 	parser = argparse.ArgumentParser(description='Evolution Model for robots')
 	parser.add_argument( '-sf','--seq_file', type=str, help='File Name where sequences are stored', default='sequenceFile.txt')
 	parser.add_argument('-bf', '--best_file', type=str, help='File Name where bes sequences are stored', default='bestSequences.txt')
-	parser.add_argument('-th', '--numb_threads', type=int, help='Number of threads to be run', default=4)
+	parser.add_argument('-th', '--numb_threads', type=int, help='Number of threads to be run', default=1)
 	parser.add_argument('-ef', '--exploration_factor', type=int, help='How many new sequences for every old sequence', default=10)
 	parser.add_argument('-g', '--num_gen', type=int, help='Number of generations to be run', default=50)
 	args = parser.parse_args()
