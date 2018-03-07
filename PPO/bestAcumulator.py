@@ -22,8 +22,8 @@ class BestAcumulator:
 	def save(self, pathFolder):
 		# print(self.sequences)
 		stream = open("{}/bestSecs.yml".format(pathFolder), 'w')
-		print(type(self.sequences[0]['actions']))
-		print(type(self.sequences[0]['reward']))
+		# print(type(self.sequences[0]['actions']))
+		# print(type(self.sequences[0]['reward']))
 		self.sequences = [{'actions': list(map(lambda x: np.asscalar(x), i['actions'])), 'reward':np.asscalar(i['reward'])} for i in self.sequences]
 		# data = dict(Best=self.sequences)
 		# yaml_str = ruamel.yaml.dump(data, stream, default_flow_style=False)
