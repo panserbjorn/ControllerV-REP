@@ -1,0 +1,13 @@
+#Robot configuration file 
+
+motors : # Motors to be interacted with 
+  - LeftShoulder
+  - RightShoulder
+  - Lwrist
+  - Rwrist
+observables : # Object's positions to be monitored
+  - Body
+  - LeftShoulder
+  - RightShoulder
+  - Lwrist
+  - Rwrist

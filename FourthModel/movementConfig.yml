@@ -1,0 +1,11 @@
+#Movement Configuration
+
+#List of movements to be executed manually
+#Reminder: Movements will be numbered acording to order in this file
+movements : 
+  - {name : rfwd, velocities : [[RightShoulder, 1]]}
+  - {name : rbwd, velocities : [[RightShoulder, -1]]}
+  - {name : rstp, velocities : [[RightShoulder, 0]]}
+  - {name : shakeclk, velocities : [[Rwrist, 1]]}
+  - {name : shakeunclk, velocities : [[Rwrist, -1]]}
+  - {name : shakestp, velocities : [[Rwrist, 0]]}

@@ -1,0 +1,9 @@
+#Robot configuration file 
+
+motors : # Motors to be interacted with 
+  - L
+  - R 
+observables : # Object's positions to be monitored
+  - Body
+  - L
+  - R

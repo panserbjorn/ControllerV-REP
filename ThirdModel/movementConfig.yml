@@ -1,0 +1,9 @@
+#Movement Configuration
+
+#List of movements to be executed manually
+#Reminder: Movements will be numbered acording to order in this file
+movements : 
+  - {name : Forward, velocities : [[R, 1], [L, 1]]}
+  - {name : Backwards, velocities : [[R, -1], [L, -1]]}
+  - {name : Right, velocities : [[R, 0], [L, 1]]}
+  - {name : Left, velocities : [[R, 1], [L, 0]]}
