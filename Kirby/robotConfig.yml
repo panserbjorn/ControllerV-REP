@@ -1,0 +1,9 @@
+#Robot configuration file 
+
+motors : # Motors to be interacted with 
+  - LShoulder
+  - RShoulder
+observables : # Object's positions to be monitored
+  - Body
+  - RArm
+  - LArm

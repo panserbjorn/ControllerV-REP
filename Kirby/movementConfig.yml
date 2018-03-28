@@ -1,0 +1,9 @@
+#Movement Configuration
+
+#List of movements to be executed manually
+#Reminder: Movements will be numbered acording to order in this file
+movements : 
+  - {name : rup, velocities : [[RShoulder, 1]]}
+  - {name : rdwn, velocities : [[RShoulder, -1]]}
+  - {name : rstp, velocities : [[RShoulder, 0]]}
+ 
