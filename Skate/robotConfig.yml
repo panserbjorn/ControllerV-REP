@@ -1,0 +1,12 @@
+#Robot configuration file 
+
+motors : # Motors to be interacted with 
+  - BL
+  - FL
+  - BR
+  - FR
+observables : # Object's positions to be monitored
+  - Wheel_back_L
+  - Wheel_back_R
+  - Wheel_front_L
+  - Wheel_front_R

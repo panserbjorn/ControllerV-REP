@@ -1,0 +1,10 @@
+#Movement Configuration
+
+#List of movements to be executed manually
+#Reminder: Movements will be numbered acording to order in this file
+movements : 
+  - {name : forward, velocities : [[BL, 20],[BR, 20],[FL, 20],[FR, 20]]}
+  - {name : backwards, velocities : [[BL, -20],[BR, -20],[FL, -20],[FR, -20]]}
+  - {name : stop, velocities : [[BL, 0],[BR, 0],[FL, 0],[FR, 0]]}
+  - {name : left, velocities : [[BL, 10],[BR, 20],[FL, 10],[FR, 20]]}
+  - {name : left, velocities : [[BL, 20],[BR, 10],[FL, 20],[FR, 10]]}
